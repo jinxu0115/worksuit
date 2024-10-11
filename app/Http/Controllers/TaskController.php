@@ -840,7 +840,6 @@ class TaskController extends AccountBaseController
             $projectLastTaskCount = Task::projectTaskCount($project->id);
             $task->task_short_code = $project->project_short_code . '-' . $this->getTaskShortCode($project->project_short_code, $projectLastTaskCount);
         }
-        $task->save();
 
         // save labels
         $task->labels()->sync($request->task_labels);
@@ -860,6 +859,7 @@ class TaskController extends AccountBaseController
                 event(new TaskEvent($task, $newUsers, 'NewTask'));
             }
         }
+        $task->save();
 
         return Reply::successWithData(__('messages.updateSuccess'), ['redirectUrl' => route('tasks.show', $id)]);
     }

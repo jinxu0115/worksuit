@@ -74,7 +74,7 @@ class TaskObserver
             // 'approved' => $approved,
             // 'approved_by' => $approved_by,
             'description' => $task->description,
-            'staus' => $task->status,
+            'status' => $task->boardColumn->column_name,
             'custom_fields' => $customFieldData,
             'company_id' => $task->company_id,
             'assigned_to' => $assignedUsers,
