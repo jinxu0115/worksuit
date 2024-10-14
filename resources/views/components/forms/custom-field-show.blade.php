@@ -44,6 +44,19 @@
             :label="$field->label"
             :value="$fileValue">
             </x-cards.data-row>
+        @elseif($field->type == 'datetime')
+            @php
+                $date = '';
+                $time = '';
+                if($model && $model->custom_fields_data['field_'.$field->id] != ''){
+                    $dateTimeArray = explode(' ', $model->custom_fields_data['field_'.$field->id]);
+                    $date = $dateTimeArray[0];
+                    $time = $dateTimeArray[1];
+                }
+            @endphp
+            <x-cards.data-row :label="$field->label"
+                              :value="\Carbon\Carbon::parse($date)->format(companyOrGlobalSetting()->date_format) . ' ' . \Carbon\Carbon::parse($time)->format(company()->time_format)">
+            </x-cards.data-row>
         @endif
         {{-- @dd($model->custom_fields_data) --}}
     @endforeach
