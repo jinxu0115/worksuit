@@ -140,5 +140,20 @@
         return false;
     })
 
+    $('#module').on('change', function(){
+        let customFieldGroups = @json($customFieldGroups);
+        let moduleId = $(this).val();
+        let customFieldGroup = customFieldGroups.filter((group) => group.id == moduleId);
+        console.log(customFieldGroup);
+        if(customFieldGroup[0].name == 'Task'){
+            let html = '<option value="datetime">DateTime</option>';
+            $('#type').append(html);
+            $('#type').selectpicker('refresh');
+        }else {
+            $('#type').find('option[value="datetime"]').remove();
+            $('#type').selectpicker('refresh');
+        }
+    })
+
 </script>
 

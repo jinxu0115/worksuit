@@ -564,6 +564,9 @@ class TaskController extends AccountBaseController
         if ($request->custom_fields_data) {
             $task->updateCustomFieldData($request->custom_fields_data);
         }
+        if ($request->custom_fields_datetime) {
+            $task->updateCustomFieldDateTime($request->custom_fields_datetime);
+        }
 
         // For gantt chart
         if ($request->page_name && !is_null($task->due_date) && $request->page_name == 'ganttChart') {
@@ -847,6 +850,10 @@ class TaskController extends AccountBaseController
         // To add custom fields data
         if ($request->custom_fields_data) {
             $task->updateCustomFieldData($request->custom_fields_data);
+        }
+        
+        if ($request->custom_fields_datetime) {
+            $task->updateCustomFieldDateTime($request->custom_fields_datetime);
         }
 
         // Sync task users

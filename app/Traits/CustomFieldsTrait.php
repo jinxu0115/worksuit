@@ -180,6 +180,54 @@ trait CustomFieldsTrait
         }
     }
 
+    public function updateCustomFieldDateTime($fields, $company_id = null)
+    {
+        foreach ($fields as $key => $value) {
+
+            $idarray = explode('_', $key);
+            $id = end($idarray);
+
+            $fieldType = CustomField::findOrFail($id)->type;
+            $company = $company_id ? Company::findOrFail($company_id) : company();
+
+            $saveValue = '';
+            if($idarray[count($idarray) - 2] == 'date'){
+                $timeKey = str_replace('_date_', '_time_', $key);
+                $timeValue = $fields[$timeKey];
+                $saveValue = Carbon::createFromFormat(companyOrGlobalSetting()->date_format . ' ' . company()->time_format, $value . ' ' . $timeValue)->format('Y-m-d H:i');
+            }else {
+                $dateKey = str_replace('_time_', '_date_', $key);
+                $dateValue = $fields[$dateKey];
+                $saveValue = Carbon::createFromFormat(companyOrGlobalSetting()->date_format . ' ' . company()->time_format, $dateValue . ' ' . $value)->format('Y-m-d H:i');
+            }
+
+            // Find is entry exists
+            $entry = DB::table('custom_fields_data')
+                ->where('model', $this->getModelName())
+                ->where('model_id', $this->id)
+                ->where('custom_field_id', $id)
+                ->first();
+            if ($entry) {                
+
+                // Update entry
+                DB::table('custom_fields_data')
+                    ->where('model', $this->getModelName())
+                    ->where('model_id', $this->id)
+                    ->where('custom_field_id', $id)
+                    ->update(['value' => $saveValue]);
+            }
+            else {
+                DB::table('custom_fields_data')
+                    ->insert([
+                        'model' => $this->getModelName(),
+                        'model_id' => $this->id,
+                        'custom_field_id' => $id,
+                        'value' => (!is_null($saveValue)) ? $saveValue : ''
+                    ]);
+            }
+        }
+    }
+
     public function getExtrasAttribute()
     {
         if ($this->extraData == null) {

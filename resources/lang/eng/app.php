@@ -1,6 +1,7 @@
 <?php
 
 return array(
+    'datatime' => 'Data and Time',
     'dealWatcher' => 'Deal Watcher',
     'signBy' => 'Sign By',
     'leaveArchive' => 'Inactive',

@@ -138,10 +138,39 @@
                             class="custom-field-file"
                             :fieldLabel="$field->label"
                             :fieldRequired="($field->required === 'yes') ? true : false"
-                            :fieldName="'custom_fields_data[' . $field->name . '_' . $field->id . ']'"
+                            :fieldName="'custom_fields_data[' . $field->name . '_time_' . $field->id . ']'"
                             :fieldId="'custom_fields_data[' . $field->name . '_' . $field->id . ']'"
                             :fieldValue="$model ? ($model->custom_fields_data['field_' . $field->id] != '' ? asset_url_local_s3('custom_fields/' .$model->custom_fields_data['field_' . $field->id]) : '') : ''"
                         />
+                    @elseif ($field->type == 'datatime')
+                        @php
+                            $date = '';
+                            $time = '';
+                            if($model && $model->custom_fields_data['field_'.$field->id] != ''){
+                                $dateTimeArray = explode(' ', $model->custom_fields_data['field_'.$field->id]);
+                                $date = $dateTimeArray[0];
+                                $time = $dateTimeArray[1];
+                            }
+                        @endphp
+                        <div class="d-flex">
+                            <x-forms.datepicker custom="true"
+                                fieldId="custom_fields_datetime[{{ $field->name . '_date_' . $field->id }}]"
+                                :fieldRequired="($field->required === 'yes') ? true : false"
+                                :fieldLabel="$field->label . ' Date'"
+                                fieldName="custom_fields_datetime[{{ $field->name . '_date_' . $field->id }}]"
+                                :fieldValue="($date != '') ? \Carbon\Carbon::parse($date)->format(companyOrGlobalSetting()->date_format) : now()->format(companyOrGlobalSetting()->date_format)"
+                                :fieldPlaceholder="$field->label"/>
+                            <div class="bootstrap-timepicker timepicker ml-2">
+                                <x-forms.text 
+                                    :fieldLabel="$field->label . ' Time'"
+                                    :fieldPlaceholder="__('placeholders.hours')"
+                                    :fieldName="'custom_fields_datetime[' . $field->name . '_time_' . $field->id . ']'"
+                                    :fieldId="'custom_fields_datetime[' . $field->name . '_time_' . $field->id . ']'"
+                                    :fieldRequired="$field->required === 'yes'" 
+                                    :fieldValue="($time != '') ? \Carbon\Carbon::parse($time)->format(company()->time_format) : now()->format(company()->time_format)"
+                                    />
+                            </div>
+                        </div>
                     @endif
 
                     <div class="form-control-focus"></div>
@@ -151,3 +180,13 @@
         @endforeach
     </div>
 @endif
+
+<script>
+    $(document).ready(function() {
+        $('.bootstrap-timepicker.timepicker').find('input').timepicker({
+            @if (company()->time_format == 'H:i')
+                showMeridian: false
+            @endif
+        });
+    });
+</script>
