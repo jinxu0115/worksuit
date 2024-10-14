@@ -719,6 +719,11 @@ class Module extends BaseModel
                 [
                     'allowed_permissions' => Permission::ALL_NONE,
                     'is_custom' => 1,
+                    'name' => 'view_tasks_unbelong_project',
+                ],
+                [
+                    'allowed_permissions' => Permission::ALL_NONE,
+                    'is_custom' => 1,
                     'name' => 'create_unassigned_tasks',
                 ],
             ]

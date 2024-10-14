@@ -195,6 +195,11 @@ class Task extends BaseModel
         return $this->hasMany(TaskUser::class, 'task_id');
     }
 
+    public function projectMembers(): HasMany
+    {
+        return $this->hasMany(ProjectMember::class, 'project_id');
+    }
+
     public function activeUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'task_users')->using(TaskUser::class);

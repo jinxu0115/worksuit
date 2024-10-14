@@ -25,6 +25,7 @@ class TasksDataTable extends BaseDataTable
     private $viewTaskPermission;
     private $changeStatusPermission;
     private $viewUnassignedTasksPermission;
+    private $viewTasksUnbelongPermission;
     private $hasTimelogModule;
     private $projectView;
     private $editMilestonePermission;
@@ -38,6 +39,7 @@ class TasksDataTable extends BaseDataTable
         $this->viewTaskPermission = user()->permission('view_tasks');
         $this->changeStatusPermission = user()->permission('change_status');
         $this->viewUnassignedTasksPermission = user()->permission('view_unassigned_tasks');
+        $this->viewTasksUnbelongPermission = user()->permission('view_tasks_unbelong_project');
         $this->hasTimelogModule = (in_array('timelogs', user_modules()));
         $this->viewProjectTaskPermission = user()->permission('view_project_tasks');
         $this->projectView = $projectView;
@@ -451,6 +453,7 @@ class TasksDataTable extends BaseDataTable
 
         $model->leftJoin('users as creator_user', 'creator_user.id', '=', 'tasks.created_by')
             ->leftJoin('task_labels', 'task_labels.task_id', '=', 'tasks.id')
+            ->leftJoin('project_members', 'project_members.project_id', '=', 'tasks.project_id')
 
             ->selectRaw(
                 'tasks.id, tasks.priority, tasks.approval_send, tasks.estimate_hours, tasks.estimate_minutes, tasks.completed_on, tasks.task_short_code, tasks.start_date, tasks.added_by, projects.need_approval_by_admin, projects.project_name, projects.project_admin, tasks.heading, tasks.repeat, client.name as clientName, creator_user.name as created_by, creator_user.image as created_image, tasks.board_column_id,
@@ -505,6 +508,16 @@ class TasksDataTable extends BaseDataTable
 
         if ($request->assignedTo == 'unassigned' && $this->viewUnassignedTasksPermission == 'all' && !in_array('client', user_roles())) {
             $model->whereDoesntHave('users');
+        }
+        
+        if($this->viewTasksUnbelongPermission == 'none'){
+            $userId = user()->id;
+            // $model->whereHas('projectMembers', function ($q) use($userId) {
+            //         $q->where('projectMembers.user_id', $userId);
+            //     }
+            // );
+
+            $model->where('project_members.user_id', $userId);
         }
 
         if ($startDate !== null && $endDate !== null) {

@@ -175,6 +175,7 @@ return array (
     'send_reminder' => 'Send Reminder',
     'add_status' => 'Add Status',
     'view_unassigned_tasks' => 'View Unassigned Tasks',
+    'view_tasks_unbelong_project' => 'View Tasks Unbelong To Project',
     'create_unassigned_tasks' => 'Create Unassigned Tasks',
     'add_estimates' => 'Add Estimates',
     'view_estimates' => 'View Estimates',
