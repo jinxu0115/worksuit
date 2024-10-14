@@ -244,6 +244,7 @@
     const DROPZONE_FILE_ALLOW = "{{ global_setting()->allowed_file_types }}";
     const DROPZONE_MAX_FILESIZE = "{{ global_setting()->allowed_file_size }}";
     const DROPZONE_MAX_FILES = "{{ global_setting()->allow_max_no_of_files }}";
+    const DROPZONE_REVIEW_FILE_ALLOW = ".jpg,.jpeg,.png,.gif,.mp4,.avi,.mov";
 
     Dropzone.prototype.defaultOptions.dictFallbackMessage = "{{ __('modules.projectTemplate.dropFallbackMessage') }}";
     Dropzone.prototype.defaultOptions.dictFallbackText = "{{ __('modules.projectTemplate.dropFallbackText') }}";

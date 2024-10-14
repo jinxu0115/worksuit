@@ -1059,6 +1059,9 @@ class TaskController extends AccountBaseController
             abort_403(!in_array('timelogs', user_modules()));
             $this->tab = 'tasks.ajax.timelogs';
             break;
+        case 'review_file':
+            $this->tab = 'tasks.ajax.review_file';
+            break;
         default:
             if ($this->taskSettings->files == 'yes' && in_array('client', user_roles())) {
                 $this->tab = 'tasks.ajax.files';

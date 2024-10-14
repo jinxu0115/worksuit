@@ -373,6 +373,8 @@
                                             :link="route('tasks.show', $task->id).'?view=history'">@lang('modules.tasks.history')
                                 </x-tab-item>
                             @endif
+                            <x-tab-item class="ajax-tab" :active="(request('view') === 'review_file')"
+                                            :link="route('tasks.show', $task->id).'?view=review_file'">Review Files</x-tab-item>
                         </x-tab-section>
 
 
@@ -952,6 +954,49 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var url = "{{ route('task-files.destroy', ':id') }}";
+                        url = url.replace(':id', id);
+
+                        var token = "{{ csrf_token() }}";
+
+                        $.easyAjax({
+                            type: 'POST',
+                            url: url,
+                            data: {
+                                '_token': token,
+                                '_method': 'DELETE'
+                            },
+                            success: function (response) {
+                                if (response.status == "success") {
+                                    $('#task-file-list').html(response.view);
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+            
+            $('body').on('click', '.delete-review-file', function () {
+                var id = $(this).data('row-id');
+                Swal.fire({
+                    title: "@lang('messages.sweetAlertTitle')",
+                    text: "@lang('messages.recoverRecord')",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    focusConfirm: false,
+                    confirmButtonText: "@lang('messages.confirmDelete')",
+                    cancelButtonText: "@lang('app.cancel')",
+                    customClass: {
+                        confirmButton: 'btn btn-primary mr-3',
+                        cancelButton: 'btn btn-secondary'
+                    },
+                    showClass: {
+                        popup: 'swal2-noanimation',
+                        backdrop: 'swal2-noanimation'
+                    },
+                    buttonsStyling: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var url = "{{ route('task-review-files.destroy', ':id') }}";
                         url = url.replace(':id', id);
 
                         var token = "{{ csrf_token() }}";

@@ -456,6 +456,14 @@ $editMilestonePermission = user()->permission('edit_project_milestones');
                         </div>
                         <input type="hidden" name="addedFiles" id="addedFiles">
                     @endif
+                    <div class="col-lg-12">
+                        <x-forms.file-multiple class="mr-0 mr-lg-2 mr-md-2"
+                                                fieldLabel="Review File Upload (Image or Video)" fieldName="review_file"
+                                                fieldId="review-file-upload-dropzone"/>
+                    </div>
+                    <div class="col-lg-12">
+                        
+                    </div>
 
                 </div>
                 <x-forms.custom-field :fields="$fields" :model="$task"></x-forms.custom-field>
@@ -661,6 +669,64 @@ $editMilestonePermission = user()->permission('edit_project_milestones');
             });
         }
 
+        if (add_task_files == "all" || add_task_files == "added") {
+
+        Dropzone.autoDiscover = false;
+            //Dropzone class
+            taskReviewDropzone = new Dropzone("div#review-file-upload-dropzone", {
+                dictDefaultMessage: "{{ __('app.dragDrop') }}",
+                url: "{{ route('task-review-files.store') }}",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                paramName: "file",
+                maxFilesize: 100,
+                maxFiles: DROPZONE_MAX_FILES,
+                autoProcessQueue: false,
+                uploadMultiple: true,
+                addRemoveLinks: true,
+                parallelUploads: DROPZONE_MAX_FILES,
+                acceptedFiles: DROPZONE_REVIEW_FILE_ALLOW,
+                init: function() {
+                    taskReviewDropzone = this;
+                }
+            });
+            taskReviewDropzone.on('sending', function(file, xhr, formData) {
+                var ids = "{{ $task->id }}";
+                formData.append('task_id', ids);
+                $.easyBlockUI();
+            });
+            taskReviewDropzone.on('uploadprogress', function() {
+                $.easyBlockUI();
+            });
+            taskReviewDropzone.on('queuecomplete', function() {
+                var msgs = "@lang('messages.recordSaved')";
+                window.location.href = "{{ route('tasks.index') }}"
+            });
+            taskDropzone.on('removedfile', function () {
+                var grp = $('div#file-upload-dropzone').closest(".form-group");
+                var label = $('div#file-upload-box').siblings("label");
+                $(grp).removeClass("has-error");
+                $(label).removeClass("is-invalid");
+            });
+            taskReviewDropzone.on('error', function (file, message) {
+                taskReviewDropzone.removeFile(file);
+                var grp = $('div#file-upload-dropzone').closest(".form-group");
+                var label = $('div#file-upload-box').siblings("label");
+                $(grp).find(".help-block").remove();
+                var helpBlockContainer = $(grp);
+
+                if (helpBlockContainer.length == 0) {
+                    helpBlockContainer = $(grp);
+                }
+
+                helpBlockContainer.append('<div class="help-block invalid-feedback">' + message + '</div>');
+                $(grp).addClass("has-error");
+                $(label).addClass("is-invalid");
+
+            });
+        }
+
 
         $("#selectAssignee").selectpicker({
             actionsBox: true,
@@ -802,6 +868,9 @@ $editMilestonePermission = user()->permission('edit_project_milestones');
                     if ((add_task_files == "all" || add_task_files == "added") &&
                         taskDropzone.getQueuedFiles().length > 0) {
                         taskDropzone.processQueue();
+                    } else if ((add_task_files == "all" || add_task_files == "added") &&
+                        taskReviewDropzone.getQueuedFiles().length > 0) {
+                        taskReviewDropzone.processQueue();
                     } else if ($(RIGHT_MODAL).hasClass('in')) {
                         document.getElementById('close-task-detail').click();
                         if($('#unassigned-task').length) {

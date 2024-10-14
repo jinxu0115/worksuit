@@ -255,6 +255,11 @@ class Task extends BaseModel
         return $this->hasMany(TaskFile::class, 'task_id')->orderByDesc('id');
     }
 
+    public function reviewFiles(): HasMany
+    {
+        return $this->hasMany(TaskReviewFile::class, 'task_id')->orderByDesc('id');
+    }
+
     public function activeTimer(): HasOne
     {
         return $this->hasOne(ProjectTimeLog::class, 'task_id')

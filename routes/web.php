@@ -122,6 +122,7 @@ use App\Http\Controllers\LeadContactController;
 use App\Http\Controllers\NoticeFileController;
 use App\Http\Controllers\InvoicePaymentDetailController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\TaskReviewFileController;
 
 Route::group(['middleware' => ['auth', 'multi-company-select', 'email_verified'], 'prefix' => 'account'], function () {
     Route::post('image/upload', [ImageController::class, 'store'])->name('image.store');
@@ -421,6 +422,9 @@ Route::group(['middleware' => ['auth', 'multi-company-select', 'email_verified']
         // task files routes
         Route::get('task-files/download/{id}', [TaskFileController::class, 'download'])->name('task_files.download');
         Route::resource('task-files', TaskFileController::class);
+        // task review files routes
+        Route::resource('task-review-files', TaskReviewFileController::class);
+        Route::get('task-review-files/downloadReviewFile/{id}', [TaskReviewFileController::class, 'downloadReviewFile'])->name('task_review_files.downloadReviewFile');
 
         // Sub task routes
         Route::post('sub-task/change-status', [SubTaskController::class, 'changeStatus'])->name('sub_tasks.change_status');
