@@ -580,10 +580,31 @@
                     taskReviewDropzone = this;
                 }
             });
+            taskReviewDropzone.on('addedfile', function (file) {
+                if (file.type.startsWith('video/')) {
+                    const videoElement = document.createElement('video');
+                    videoElement.src = URL.createObjectURL(file);
+
+                    videoElement.onloadedmetadata = function () {
+                        const duration = videoElement.duration;
+
+                        file.duration = duration;
+
+                        // Clean up the object URL
+                        URL.revokeObjectURL(videoElement.src);
+                    };
+                }
+            });
             taskReviewDropzone.on('sending', function (file, xhr, formData) {
                 checkSize = false;
                 var ids = $('#taskID').val();
                 formData.append('task_id', ids);
+                if (file.duration) {
+                    // Add the duration from the file object to the formData
+                    const sanitizedFileName = file.name.replace(/[.\s]/g, '_');
+                    const durationKey = `${sanitizedFileName}_duration`;
+                    formData.append(durationKey, file.duration);
+                }
                 $.easyBlockUI();
             });
             taskReviewDropzone.on('uploadprogress', function () {

@@ -26,4 +26,10 @@ class TaskReviewFile extends Model
     {
         return $this->external_link ?: (TaskReviewFile::FILE_PATH . '/' . $this->task_id . '/' . $this->hashname);
     }
+
+    public function canApprove(){
+        $userId = user()->id;
+        $task = Task::where('id', $this->task_id)->first();
+        return $task->created_by == $userId;
+    }
 }

@@ -59,6 +59,8 @@ use App\Http\Requests\Tickets\StoreCustomTicket;
 use App\Models\GanttLink;
 use App\Models\LanguageSetting;
 use App\Models\ProjectMilestone;
+use App\Models\TaskReviewFile;
+use App\Models\TaskReviewComment;
 use App\Events\NewUserEvent;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
@@ -1214,6 +1216,32 @@ class HomeController extends Controller
         $this->imageUrl = request()->image_url;
 
         return view('front.image.show_image', $this->data);
+    }
+    
+    public function editReview()
+    {
+        $this->mode = request()->mode;
+        $review_file_id = request()->review_file_id;
+        $this->review_file = TaskReviewFile::findOrFail($review_file_id);
+        $this->taskReviewComments = TaskReviewComment::where('review_file_id', request()->review_file_id)->get();
+        
+        $extension = pathinfo($this->review_file->file_url, PATHINFO_EXTENSION);
+
+        if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])){
+            return view('front.tasks.edit-review.edit-image-review', $this->data);
+        }else if (in_array($extension, ['mp4', 'webm', 'ogg', 'avi', 'mov'])){
+            $this->extension = $extension;
+            return view('front.tasks.edit-review.edit-video-review', $this->data);
+        }
+    }
+    
+    public function approveReview()
+    {
+        $review_file_id = request()->reviewFileId;
+        $review_file = TaskReviewFile::findOrFail($review_file_id);
+        $review_file->approved = true;
+        $review_file->save();
+        return 'success';
     }
 
     public function showPieChart()

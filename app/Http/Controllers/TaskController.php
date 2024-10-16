@@ -32,6 +32,7 @@ use App\DataTables\TasksDataTable;
 use App\DataTables\WaitingForApprovalDataTable;
 use Illuminate\Support\Facades\DB;
 use App\Models\ProjectTimeLogBreak;
+use App\Models\TaskReviewFile;
 use App\Http\Requests\Tasks\StoreTask;
 use Illuminate\Support\Facades\Config;
 use App\Http\Requests\Tasks\UpdateTask;
@@ -743,6 +744,8 @@ class TaskController extends AccountBaseController
         $this->userData = $userData;
 
         $this->view = 'tasks.ajax.edit';
+
+        $this->reviewFiles = $this->task->reviewFiles;
 
         if (request()->ajax()) {
             return $this->returnAjax($this->view);

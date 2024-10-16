@@ -181,6 +181,8 @@
 <!-- Global Required Javascript -->
 <script src="{{ asset('js/main.js') }}"></script>
 <script>
+    let video_duration;
+    let video_element;
     // Translation of default values for the select picker box.
     $.fn.selectpicker.Constructor.DEFAULTS.noneSelectedText = "@lang('placeholders.noneSelectedText')";
     $.fn.selectpicker.Constructor.DEFAULTS.noneResultsText = "@lang('placeholders.noneResultsText')";

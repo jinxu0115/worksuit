@@ -36,9 +36,10 @@
                                         @lang('modules.tasks.sendForApproval')
                                     </x-forms.button-primary>
                                 @else
+                                    <input type="hidden" id="canBeCompleted" value="{{$task->canBeCompleted()}}"/>
                                     @if ($task->boardColumn->slug != 'completed')
                                         <x-forms.button-primary icon="check" data-status="completed"
-                                                                class="change-task-status mr-2 mb-2 mb-lg-0 mb-md-0">
+                                                                class="change-task-status mr-2 mb-2 mb-lg-0 mb-md-0" :disabled="!$task->canBeCompleted()">
                                             @lang('modules.tasks.markComplete')
                                         </x-forms.button-primary>
                                     @else
@@ -617,10 +618,12 @@
             //    change task status
             $('body').on('click', '.change-task-status', function () {
                 var status = $(this).data('status');
+                
 
                 var id = '{{ $task->id }}';
 
                 if (status == 'completed') {
+                    if(!$('#canBeCompleted').val()) return ;
                     var checkUrl = "{{ route('tasks.check_task', ':id') }}";
                     checkUrl = checkUrl.replace(':id', id);
                     var token = "{{ csrf_token() }}";

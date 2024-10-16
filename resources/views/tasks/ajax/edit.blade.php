@@ -461,8 +461,38 @@ $editMilestonePermission = user()->permission('edit_project_milestones');
                                                 fieldLabel="Review File Upload (Image or Video)" fieldName="review_file"
                                                 fieldId="review-file-upload-dropzone"/>
                     </div>
-                    <div class="col-lg-12">
-                        
+                    <div class="col-lg-12 d-flex flex-wrap" id="task-file-list">
+                        @php
+                            $viewTaskFilePermission = user()->permission('view_task_files');
+                            $deleteTaskFilePermission = user()->permission('delete_task_files');
+                        @endphp
+                        @foreach($reviewFiles as $file)
+                            <x-file-card :fileName="$file->filename" :dateAdded="$file->created_at->diffForHumans()">
+                                <x-file-view-thumbnail :file="$file"></x-file-view-thumbnail>
+                                    <x-slot name="action">
+                                        <div class="dropdown ml-auto file-action">
+                                            <button class="btn btn-lg f-14 p-0 text-lightest  rounded  dropdown-toggle"
+                                                    type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fa fa-ellipsis-h"></i>
+                                            </button>
+
+                                            <div class="dropdown-menu dropdown-menu-right border-grey rounded b-shadow-4 p-0"
+                                                aria-labelledby="dropdownMenuLink" tabindex="0">
+                                                <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 edit-review" data-review-file-id="{{$file->id}}" href="javascript:;">Edit</a>
+
+                                                <a class="cursor-pointer d-block text-dark-grey f-13 py-3 px-3 "
+                                                href="{{ route('task_review_files.downloadReviewFile', md5($file->id)) }}">@lang('app.download')</a>
+
+                                                @if ($deleteTaskFilePermission == 'all' || ($deleteTaskFilePermission == 'added' && $file->added_by == user()->id))
+                                                    <a class="cursor-pointer d-block text-dark-grey f-13 pb-3 px-3 delete-review-file"
+                                                    data-row-id="{{ $file->id }}" href="javascript:;">@lang('app.delete')</a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </x-slot>
+
+                            </x-file-card>
+                        @endforeach
                     </div>
 
                 </div>
@@ -486,6 +516,57 @@ $editMilestonePermission = user()->permission('edit_project_milestones');
     var add_task_files = "{{ $addTaskFilePermission }}";
 
     $(document).ready(function() {
+        $('body').on('click', '.delete-review-file', function () {
+            var id = $(this).data('row-id');
+            Swal.fire({
+                title: "@lang('messages.sweetAlertTitle')",
+                text: "@lang('messages.recoverRecord')",
+                icon: 'warning',
+                showCancelButton: true,
+                focusConfirm: false,
+                confirmButtonText: "@lang('messages.confirmDelete')",
+                cancelButtonText: "@lang('app.cancel')",
+                customClass: {
+                    confirmButton: 'btn btn-primary mr-3',
+                    cancelButton: 'btn btn-secondary'
+                },
+                showClass: {
+                    popup: 'swal2-noanimation',
+                    backdrop: 'swal2-noanimation'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var url = "{{ route('task-review-files.destroy', ':id') }}";
+                    url = url.replace(':id', id);
+
+                    var token = "{{ csrf_token() }}";
+
+                    $.easyAjax({
+                        type: 'POST',
+                        url: url,
+                        data: {
+                            '_token': token,
+                            '_method': 'DELETE'
+                        },
+                        success: function (response) {
+                            if (response.status == "success") {
+                                $('#task-file-list').html(response.view);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        $('.edit-review').on('click', function() {
+            var reviewFileId = $(this).data('review-file-id');
+
+            const url = "{{ route('front.public.edit-review') }}" + `?review_file_id=${encodeURIComponent(reviewFileId)}&mode=edit`;
+
+            $(MODAL_XL + ' ' + MODAL_HEADING).html('...');
+
+            $.ajaxModal(MODAL_XL, url);
+        })
 
         $('#board_column_id').selectpicker();
 
@@ -691,9 +772,32 @@ $editMilestonePermission = user()->permission('edit_project_milestones');
                     taskReviewDropzone = this;
                 }
             });
-            taskReviewDropzone.on('sending', function(file, xhr, formData) {
-                var ids = "{{ $task->id }}";
+            taskReviewDropzone.on('addedfile', function (file) {
+                if (file.type.startsWith('video/')) {
+                    const videoElement = document.createElement('video');
+                    videoElement.src = URL.createObjectURL(file);
+
+                    videoElement.onloadedmetadata = function () {
+                        const duration = videoElement.duration;
+
+                        file.duration = duration;
+
+                        // Clean up the object URL
+                        URL.revokeObjectURL(videoElement.src);
+                    };
+                }
+            });
+            taskReviewDropzone.on('sending', function (file, xhr, formData) {
+                const ids = "{{ $task->id }}";
                 formData.append('task_id', ids);
+
+                if (file.duration) {
+                    // Add the duration from the file object to the formData
+                    const sanitizedFileName = file.name.replace(/[.\s]/g, '_');
+                    const durationKey = `${sanitizedFileName}_duration`;
+                    formData.append(durationKey, file.duration);
+                }
+
                 $.easyBlockUI();
             });
             taskReviewDropzone.on('uploadprogress', function() {

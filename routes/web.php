@@ -123,6 +123,7 @@ use App\Http\Controllers\NoticeFileController;
 use App\Http\Controllers\InvoicePaymentDetailController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\TaskReviewFileController;
+use App\Http\Controllers\TaskReviewCommentController;
 
 Route::group(['middleware' => ['auth', 'multi-company-select', 'email_verified'], 'prefix' => 'account'], function () {
     Route::post('image/upload', [ImageController::class, 'store'])->name('image.store');
@@ -409,6 +410,8 @@ Route::group(['middleware' => ['auth', 'multi-company-select', 'email_verified']
     Route::get('tasks/show-waiting-approval-change-status-modal', [TaskController::class, 'statusReason'])->name('tasks.show_status_reason_modal');
     Route::post('tasks/store-status-reason', [TaskController::class, 'storeStatusReason'])->name('tasks.store_comment_on_change_status');
     Route::post('tasks/set-table-column', [TaskController::class, 'setTableColumn'])->name('tasks.setTableColumn');
+
+    Route::resource('task-review-comment', TaskReviewCommentController::class);
 
     Route::group(['prefix' => 'tasks'], function () {
 

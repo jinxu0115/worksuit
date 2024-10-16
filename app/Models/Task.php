@@ -311,6 +311,14 @@ class Task extends BaseModel
         return $query->where('tasks.board_column_id', '<>', $taskBoardColumn->id);
     }
 
+    public function canBeCompleted(){
+        $reviewFiles = TaskReviewFile::where('task_id', $this->id)->get();
+        foreach ($reviewFiles as $file){
+            if($file->approved == false) return false;
+        }
+        return true;
+    }
+
     /**
      * @return string
      */

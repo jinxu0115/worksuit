@@ -325,6 +325,7 @@ class TasksDataTable extends BaseDataTable
 
                     foreach ($taskBoardColumns as $item) {
                         if ($item->id != $taskBoardColumn->id) {
+                            if(strtolower($item->column_name) == 'completed' && !$row->canBeCompleted()) continue;
                             $status .= '<option ';
 
                             if ($item->id == $row->board_column_id) {

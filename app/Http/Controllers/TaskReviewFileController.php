@@ -51,7 +51,7 @@ class TaskReviewFileController extends AccountBaseController
 
         if ($request->hasFile('file')) {
 
-            foreach ($request->file as $fileData) {
+            foreach ($request->file as $idx => $fileData) {
                 $file = new TaskReviewFile();
                 $file->task_id = $request->task_id;
 
@@ -61,6 +61,10 @@ class TaskReviewFileController extends AccountBaseController
                 $file->filename = $fileData->getClientOriginalName();
                 $file->hashname = $filename;
                 $file->size = $fileData->getSize();
+                if (str_starts_with($fileData->getMimeType(), 'video/')) {
+                    $sanitizedFileName = str_replace([' ', '.'], '_', $fileData->getClientOriginalName());
+                    $file->duration = $request->input($sanitizedFileName . '_duration'); 
+                }
                 $file->save();
 
                 $this->logTaskActivity($task->id, $this->user->id, 'uploadReviewFile', $task->board_column_id);
