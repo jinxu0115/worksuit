@@ -269,6 +269,8 @@ use App\Models\Skill;
 use App\Models\StickyNote;
 use App\Models\SubTask;
 use App\Models\Task;
+use App\Models\TaskReviewFile;
+use App\Models\TaskReviewComment;
 use App\Models\TaskboardColumn;
 use App\Models\TaskCategory;
 use App\Models\TaskComment;
@@ -439,6 +441,8 @@ use App\Observers\PromotionObserver;
 use App\Observers\TaskLabelListObserver;
 use App\Observers\TaskNoteObserver;
 use App\Observers\TaskObserver;
+use App\Observers\TaskReviewFileObserver;
+use App\Observers\TaskReviewCommentObserver;
 use App\Observers\TaskSettingObserver;
 use App\Observers\TaskUserObserver;
 use App\Observers\TaxObserver;
@@ -632,6 +636,8 @@ class EventServiceProvider extends ServiceProvider
         // RemovalRequestDeal::class => [RemovalRequestLeadObserver::class],
         SubTask::class => [SubTaskObserver::class],
         Task::class => [TaskObserver::class],
+        TaskReviewFile::class => [TaskReviewFileObserver::class],
+        TaskReviewComment::class => [TaskReviewCommentObserver::class],
         TaskboardColumn::class => [TaskBoardColumnObserver::class],
         TaskCategory::class => [TaskCategoryObserver::class],
         TaskComment::class => [TaskCommentObserver::class],
