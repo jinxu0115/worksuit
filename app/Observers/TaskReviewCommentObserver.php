@@ -8,6 +8,7 @@ use App\Models\TaskUser;
 use App\Models\User;
 use App\Models\TaskReviewFile;
 use Illuminate\Support\Facades\Http;
+use App\Events\TaskReviewCommentEvent;
 
 class TaskReviewCommentObserver
 {
@@ -69,6 +70,7 @@ class TaskReviewCommentObserver
         $webhookUrl = env('WEBHOOK_URL');
         $taskReviewFile = TaskReviewFile::where('id', $taskReviewComment->review_file_id)->first();
         $task = Task::where('id', $taskReviewFile->task_id)->first();
+        event(new TaskReviewCommentEvent($task, $task->users, 'CommentCreated'));
         Http::post($webhookUrl, array_merge($this->webhookData($taskReviewComment, $taskReviewFile, $task, 'task review comment created')));
     }
 

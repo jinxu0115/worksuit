@@ -78,6 +78,7 @@ use App\Events\DailyScheduleEvent;
 use App\Events\EstimateRequestAcceptedEvent;
 use App\Events\EstimateRequestRejectedEvent;
 use App\Events\TaskReviewFileEvent;
+use App\Events\TaskReviewCommentEvent;
 use App\Listeners\AppreciationListener;
 use App\Listeners\AttendanceReminderListener;
 use App\Listeners\AutoFollowUpReminderListener;
@@ -154,6 +155,7 @@ use App\Listeners\TwoFactorCodeListener;
 use App\Listeners\DailyScheduleListener;
 use App\Listeners\EstimateRequestRejectedListener;
 use App\Listeners\TaskReviewFileListener;
+use App\Listeners\TaskReviewCommentListener;
 use App\Models\AcceptEstimate;
 use App\Models\Appreciation;
 use App\Models\Attendance;
@@ -569,6 +571,7 @@ class EventServiceProvider extends ServiceProvider
         PromotionAddedEvent::class => [PromotionAddedListener::class],
         PackageUpdateNotifyEvent::class => [PackageUpdateNotifyListener::class],
         TaskReviewFileEvent::class => [TaskReviewFileListener::class],
+        TaskReviewCommentEvent::class => [TaskReviewCommentListener::class],
 
     ];
 
