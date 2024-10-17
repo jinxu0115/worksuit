@@ -64,6 +64,8 @@ use App\Models\TaskReviewComment;
 use App\Events\NewUserEvent;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
+use App\Events\TaskEvent;
+use App\Events\TaskReviewFileEvent;
 
 class HomeController extends Controller
 {
@@ -1241,6 +1243,9 @@ class HomeController extends Controller
         $review_file = TaskReviewFile::findOrFail($review_file_id);
         $review_file->approved = true;
         $review_file->save();
+        $task = Task::where('id', $review_file->task_id)->first();
+        
+        event(new TaskReviewFileEvent($task, $task->users, 'ApproveReview'));
         return 'success';
     }
 

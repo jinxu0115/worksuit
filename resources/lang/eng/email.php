@@ -114,6 +114,7 @@ return array(
         'action' => 'View Task',
         'updatedBy' => 'Task Status Updated By',
         'statusUpdated' => 'Your Task Status Has Been Updated!',
+        'reviewApproved' => 'Your Task Review Has Been Approved!',
     ),
     'taskApproval' => array(
         'subject' => 'Task sent for the approval.',
