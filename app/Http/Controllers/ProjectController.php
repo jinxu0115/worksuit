@@ -301,6 +301,7 @@ class ProjectController extends AccountBaseController
             $project->public_gantt_chart = $request->public_gantt_chart ?? 'enable';
             $project->public_taskboard = $request->public_taskboard ?? 'enable';
             $project->need_approval_by_admin = $request->need_approval_by_admin ?? '0';
+            $project->approver = $request->approver_id;
 
             if (!is_null($request->duplicateProjectID)) {
 
@@ -550,6 +551,7 @@ class ProjectController extends AccountBaseController
         $project->project_summary = trim_editor($request->project_summary);
 
         $project->start_date = companyToYmd($request->start_date);
+        $project->approver = $request->approver_id;
 
         if (!$request->has('without_deadline')) {
             $project->deadline = companyToYmd($request->deadline);

@@ -240,7 +240,6 @@ $createPublicProjectPermission = user()->permission('create_public_project');
                             </div>
                         </div>
                     @endif
-
                     @if ($project->public == 1 && $editProjectMembersPermission || $editPermission == 'all')
                         <div class="col-md-12 d-none" id="add_members">
                             <div class="form-group my-3">
@@ -265,8 +264,38 @@ $createPublicProjectPermission = user()->permission('create_public_project');
 
                                     @if ($addEmployeePermission == 'all' || $addEmployeePermission == 'added')
                                         <x-slot name="append">
-                                            <button id="add-employee" type="button"
-                                                class="btn btn-outline-secondary border-grey">@lang('app.add')</button>
+                                            <button type="button"
+                                                class="btn btn-outline-secondary border-grey add-employee">@lang('app.add')</button>
+                                        </x-slot>
+                                    @endif
+                                </x-forms.input-group>
+                            </div>
+                        </div>
+                        <div class="col-md-12 d-none" id="add_approver">
+                            <div class="my-3 form-group">
+                                <x-forms.label class="my-3" fieldId="selectApprover" fieldRequired="true"
+                                               fieldLabel="Add Project Approver">
+                                </x-forms.label>
+
+                                <x-forms.input-group>
+                                    <select class="form-control multiple-users" name="approver_id"
+                                            id="selectApprover" data-live-search="true" data-size="8">
+                                        @foreach ($employees as $item)
+                                            {{-- @if ($item->status === 'active' || (request()->has('default_assign') && request('default_assign') == $item->id) || (isset($projectTemplateMembers) && in_array($item->id, $projectTemplateMembers)) || (isset($projectMembers) && in_array($item->id, $projectMembers))) --}}
+                                            <x-user-option
+                                                :user="$item"
+                                                :pill="true"
+                                                :selected="(request()->has('default_assign') && request('default_assign') == $item->id) || (isset($projectTemplateMembers) && in_array($item->id, $projectTemplateMembers)) || (isset($projectMembers) && in_array($item->id, $projectMembers)) || ($item->id == $project->approver)"
+                                            />
+                                            {{-- @endif --}}
+                                        @endforeach
+                                    </select>
+
+                                    @if ($addEmployeePermission == 'all' || $addEmployeePermission == 'added')
+                                        <x-slot name="append">
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary border-grey add-employee"
+                                                    data-toggle="tooltip" data-original-title="{{ __('modules.projects.addMemberTitle') }}">@lang('app.add')</button>
                                         </x-slot>
                                     @endif
                                 </x-forms.input-group>
@@ -545,12 +574,14 @@ $createPublicProjectPermission = user()->permission('create_public_project');
 
         $('#is_private').change(function() {
             $('#add_members').toggleClass('d-none');
+            $('#add_approver').toggleClass('d-none');
             $('#edit_members').addClass('d-none');
         });
 
         $('#is_public').change(function() {
             $('#edit_members').toggleClass('d-none');
             $('#add_members').addClass('d-none');
+            $('#add_approver').addClass('d-none');
         });
 
         $('#miroboard_checkbox').change(function() {
@@ -576,7 +607,7 @@ $createPublicProjectPermission = user()->permission('create_public_project');
             });
         });
 
-        $('#add-employee').click(function() {
+        $('.add-employee').click(function() {
             $(MODAL_XL).modal('show');
 
             const url = "{{ route('employees.create') }}";

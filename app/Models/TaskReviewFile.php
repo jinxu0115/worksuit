@@ -30,6 +30,7 @@ class TaskReviewFile extends Model
     public function canApprove(){
         $userId = user()->id;
         $task = Task::where('id', $this->task_id)->first();
-        return $task->created_by == $userId;
+        $project = Project::where('id', $task->project_id)->first();
+        return $task->created_by == $userId || $project->approver == $userId;
     }
 }

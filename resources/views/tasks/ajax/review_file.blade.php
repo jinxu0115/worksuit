@@ -100,10 +100,15 @@
                                 </div>
                             </x-slot>
                     </x-file-card>           
-                    @if($file->approved)
-                        <div class="position-absolute" style="top: 0;"><i class="fas fa-check-circle" style="width: 30px; height: 30px; color: green;"></i></div>
+                    @if($file->approved_by_creator)
+                        <div data-toggle="tooltip" data-original-title="Approved By Creator" class="position-absolute" style="top: 0;"><i class="fas fa-check-circle" style="width: 30px; height: 30px; color: green;"></i></div>
                     @else
-                        <div class="position-absolute" style="top: 0;"><i class="fas fa-times-circle" style="width: 30px; height: 30px; color: red;"></i></div>
+                        <div data-toggle="tooltip" data-original-title="Not Approve By Creator" class="position-absolute" style="top: 0;"><i class="fas fa-times-circle" style="width: 30px; height: 30px; color: red;"></i></div>
+                    @endif        
+                    @if($file->approved_by_manager)
+                        <div data-toggle="tooltip" data-original-title="Approved By Manager" class="position-absolute" style="bottom: 12px;"><i class="fas fa-check-circle" style="width: 30px; height: 30px; color: green;"></i></div>
+                    @else
+                        <div data-toggle="tooltip" data-original-title="Not Approve By Manager" class="position-absolute" style="bottom: 12px;"><i class="fas fa-times-circle" style="width: 30px; height: 30px; color: red;"></i></div>
                     @endif
                 </div>
             @endif
