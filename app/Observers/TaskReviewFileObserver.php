@@ -58,7 +58,7 @@ class TaskReviewFileObserver
             'action' => $action,
             'review_file_name' => $taskReviewFile->filename,
             'type' => pathinfo($taskReviewFile->filename, PATHINFO_EXTENSION),
-            'approved' => $taskReviewFile->approved ? true : false
+            'approved' => $taskReviewFile->approved_by_creator && $taskReviewFile->approved_by_manager ? true : false
         ];
         return $webhookData;
     }
