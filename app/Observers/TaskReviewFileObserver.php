@@ -67,7 +67,7 @@ class TaskReviewFileObserver
      */
     public function created(TaskReviewFile $taskReviewFile): void
     {        
-        $webhookUrl = env('WEBHOOK_URL');
+        $webhookUrl = config('app.webhook_url');
         $task = Task::where('id', $taskReviewFile->task_id)->first();
         Http::post($webhookUrl, array_merge($this->webhookData($taskReviewFile, $task, 'task review file created')));
     }
@@ -85,7 +85,7 @@ class TaskReviewFileObserver
      */
     public function deleted(TaskReviewFile $taskReviewFile): void
     {        
-        $webhookUrl = env('WEBHOOK_URL');
+        $webhookUrl = config('app.webhook_url');
         $task = Task::where('id', $taskReviewFile->task_id)->first();
         Http::post($webhookUrl, array_merge($this->webhookData($taskReviewFile, $task, 'task review file deleted')));
     }

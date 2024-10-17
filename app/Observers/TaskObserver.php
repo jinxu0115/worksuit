@@ -220,7 +220,7 @@ class TaskObserver
             }
 
         }
-        $webhookUrl = env('WEBHOOK_URL');
+        $webhookUrl = config('app.webhook_url');
         Http::post($webhookUrl, array_merge($this->webhookData($task, 'created')));
     }
 
@@ -396,7 +396,7 @@ class TaskObserver
                 $this->calculateProjectProgress($task->project_id);
             }
         }
-        $webhookUrl = env('WEBHOOK_URL');
+        $webhookUrl = config('app.webhook_url');
         Http::post($webhookUrl, array_merge($this->webhookData($task, 'updated')));
     }
 
@@ -483,7 +483,7 @@ class TaskObserver
             // Calculate project progress if enabled
             $this->calculateProjectProgress($task->project_id);
         }
-        $webhookUrl = env('WEBHOOK_URL');
+        $webhookUrl = config('app.webhook_url');
         Http::post($webhookUrl, array_merge($this->webhookData($task, 'deleted')));
     }
 
