@@ -613,4 +613,9 @@ class Task extends BaseModel
             $this->projectAdmin();
     }
 
+    public function checkAssignMe() : bool {
+        $taskUser = TaskUser::where('user_id', user()->id)->where('task_id', $this->id)->first();
+        return !empty($taskUser);
+    }
+
 }

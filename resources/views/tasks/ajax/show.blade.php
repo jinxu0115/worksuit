@@ -48,9 +48,8 @@
                                             @lang('modules.tasks.markIncomplete')
                                         </x-forms.button-secondary>
                                     @endif
-                                @endif
-                                <x-forms.button-secondary icon="check"
-                                                                class="assign-yourself mr-3">
+                                @endif                                
+                                <x-forms.button-secondary icon="check" class="assign-yourself mr-3" :disabled="$task->checkAssignMe()">
                                     Assign Yourself
                                 </x-forms.button-secondary>
                             @endif
