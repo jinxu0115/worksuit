@@ -1368,4 +1368,16 @@ class TaskController extends AccountBaseController
         return Reply::success(__('messages.updateSuccess'));
     }
 
+    public function assignYourself(Request $request){
+        $taskId = $request->taskId;
+        $taskUser = TaskUser::where('task_id', $taskId)->where('user_id', user()->id)->first();
+        if(empty($taskUser)){
+            TaskUser::create([
+                'task_id' => $taskId,
+                'user_id' => user()->id,
+            ]);
+        }
+        return Reply::success(__('messages.updateSuccess'));
+    }
+
 }

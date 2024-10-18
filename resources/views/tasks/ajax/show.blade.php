@@ -15,7 +15,7 @@
             <div class="card bg-white border-0 b-shadow-4">
                 <div class="card-header bg-white  border-bottom-grey  justify-content-between p-20">
                     <div class="row">
-                        <div class="col-lg-8 col-10">
+                        <div class="col-10">
                             @if ($changeStatusPermission == 'all'
                             || ($changeStatusPermission == 'added' && $task->added_by == user()->id)
                             || ($changeStatusPermission == 'owned' && in_array(user()->id, $taskUsers))
@@ -49,6 +49,10 @@
                                         </x-forms.button-secondary>
                                     @endif
                                 @endif
+                                <x-forms.button-secondary icon="check"
+                                                                class="assign-yourself mr-3">
+                                    Assign Yourself
+                                </x-forms.button-secondary>
                             @endif
 
                             @if ($task->boardColumn->slug != 'completed' && !is_null($task->is_task_user) && in_array('timelogs', user_modules()))
@@ -86,7 +90,7 @@
                                 @endif
                             @endif
                         </div>
-                        <div class="col-2 col-lg-4 d-flex justify-content-end text-right">
+                        <div class="col-2 d-flex justify-content-end text-right">
                             <div class="dropdown">
                                 <button
                                     class="btn btn-lg f-14 px-2 py-1 text-dark-grey  rounded  dropdown-toggle"
@@ -1168,6 +1172,25 @@
                 url = url.replace(':id', id);
                 $(MODAL_LG + ' ' + MODAL_HEADING).html('...');
                 $.ajaxModal(MODAL_LG, url);
+            })
+
+            $('.assign-yourself').on('click', function () {
+                var taskId = '{{ $task->id }}';;
+                var url = "{{ route('tasks.assign_yourself') }}";
+                $.easyAjax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        '_token': '{{csrf_token()}}',
+                        taskId: taskId
+                    },
+                    success: function (response) {
+                        if (response.status == "success") {
+                            window.location.reload();
+                        }
+                    }
+                });
+                
             })
 
         });
