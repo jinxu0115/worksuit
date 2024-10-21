@@ -75,7 +75,15 @@
                 @endphp
                 <div class="position-relative">
                     <x-file-card :fileName="$file->filename" :dateAdded="$file->created_at->diffForHumans()">
-                        <x-file-view-thumbnail :file="$file"></x-file-view-thumbnail>
+                        @if ($file->icon == 'images')
+                            <a class="img-lightbox view-review" data-review-file-id="{{$file->id}}"  href="javascript:;">
+                                <img src="{{ $file->file_url }}">
+                            </a>
+                        @else
+                            <a class="view-review" data-review-file-id="{{$file->id}}" >
+                                <i class="fa {{ $file->icon }} text-lightest"></i>
+                            </a>
+                        @endif
                             <x-slot name="action">
                                 <div class="dropdown ml-auto file-action">
                                     <button class="btn btn-lg f-14 p-0 text-lightest  rounded  dropdown-toggle"
@@ -86,6 +94,7 @@
                                     <div class="dropdown-menu dropdown-menu-right border-grey rounded b-shadow-4 p-0"
                                         aria-labelledby="dropdownMenuLink" tabindex="0">
                                         <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 view-review" data-review-file-id="{{$file->id}}" href="javascript:;">View</a>
+                                        <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 edit-review" data-review-file-id="{{$file->id}}" href="javascript:;">Edit</a>
                                         @if($file->canApprove())
                                             <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 approve-review" data-review-file-id="{{$file->id}}" href="javascript:;">Approve</a>
                                         @endif
@@ -136,6 +145,15 @@
             var reviewFileId = $(this).data('review-file-id');
 
             const url = "{{ route('front.public.edit-review') }}" + `?review_file_id=${encodeURIComponent(reviewFileId)}&mode=view`;
+
+            $(MODAL_XL + ' ' + MODAL_HEADING).html('...');
+
+            $.ajaxModal(MODAL_XL, url);
+        })
+        $('.edit-review').on('click', function() {
+            var reviewFileId = $(this).data('review-file-id');
+
+            const url = "{{ route('front.public.edit-review') }}" + `?review_file_id=${encodeURIComponent(reviewFileId)}&mode=edit`;
 
             $(MODAL_XL + ' ' + MODAL_HEADING).html('...');
 
