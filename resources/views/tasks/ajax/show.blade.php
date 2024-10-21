@@ -378,8 +378,6 @@
                                             :link="route('tasks.show', $task->id).'?view=history'">@lang('modules.tasks.history')
                                 </x-tab-item>
                             @endif
-                            <x-tab-item class="ajax-tab" :active="(request('view') === 'review_file')"
-                                            :link="route('tasks.show', $task->id).'?view=review_file'">Review Files</x-tab-item>
                         </x-tab-section>
 
 
@@ -496,7 +494,7 @@
                 @endif
 
             </x-cards.data>
-
+            {!! $reviewPanelView !!}
         </div>
 
     </div>

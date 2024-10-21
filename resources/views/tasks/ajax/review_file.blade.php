@@ -27,7 +27,7 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <a class="f-15 f-w-500" href="javascript:;" id="add-task-file"><i
+                    <a class="f-15 f-w-500" href="javascript:;" id="add-task-review-file"><i
                             class="icons icon-plus font-weight-bold mr-1"></i>@lang('modules.projects.uploadFile')</a>
                 </div>
             </div>
@@ -42,19 +42,19 @@
                 <!-- Popup for Send Approval -->
                 @include('tasks.ajax.sent-approval-modal')
             @else
-                <x-form id="save-taskfile-data-form" class="d-none">
+                <x-form id="save-taskreview-data-form" class="d-none">
 
                     <input type="hidden" name="task_id" value="{{ $task->id }}">
                     <div class="row">
                         <div class="col-md-12 d-none error-block">
-                            <x-alert type="danger" id="error"></x-alert>
+                            <x-alert type="danger" id="review-error"></x-alert>
                         </div>
                         <div class="col-md-12">
-                            <x-forms.file-multiple fieldLabel="" fieldName="file[]" fieldId="task-file-upload-dropzone"/>
+                            <x-forms.file-multiple fieldLabel="" fieldName="file[]" fieldId="task-review-upload-dropzone"/>
                         </div>
                         <div class="col-md-12">
                             <div class="w-100 justify-content-end d-flex mt-2">
-                                <x-forms.button-cancel id="cancel-taskfile" class="border-0">@lang('app.cancel')
+                                <x-forms.button-cancel id="cancel-taskreviewfile" class="border-0">@lang('app.cancel')
                                 </x-forms.button-cancel>
                             </div>
                         </div>
@@ -64,7 +64,7 @@
         </div>
     @endif
 
-    <div class="d-flex flex-wrap p-20" id="task-file-list">
+    <div class="d-flex flex-wrap p-20" id="task-review-file-list">
         @php
             $filesShowCount = 0; // This is done because if fies uploaded and not have permission to view then no record found message should be shown
         @endphp
@@ -76,7 +76,7 @@
                 <div class="position-relative">
                     <x-file-card :fileName="$file->filename" :dateAdded="$file->created_at->diffForHumans()">
                         @if ($file->icon == 'images')
-                            <a class="img-lightbox view-review" data-review-file-id="{{$file->id}}"  href="javascript:;">
+                            <a class="view-review" data-review-file-id="{{$file->id}}"  href="javascript:;">
                                 <img src="{{ $file->file_url }}">
                             </a>
                         @else
@@ -176,14 +176,14 @@
                 }
             })
         })
-        $('#add-task-file').click(function () {
+        $('#add-task-review-file').click(function () {
             if (send_approval == 1 && employee == 1 && admin != 1 && needApproval == 1 && status == 'waiting_approval') {
                 $('#send-approval-modal').modal('show');
                 $('.modal-backdrop').css('display', 'none');
             }else{
                 $(this).closest('.row').addClass('d-none');
                 $('.error-block').addClass('d-none');
-                $('#save-taskfile-data-form').removeClass('d-none');
+                $('#save-taskreview-data-form').removeClass('d-none');
             }
         });
 
@@ -191,7 +191,7 @@
         if (add_task_files == "all" || add_task_files == "added") {
 
             Dropzone.autoDiscover = false;
-            taskDropzone = new Dropzone("div#task-file-upload-dropzone", {
+            taskDropzone = new Dropzone("div#task-review-upload-dropzone", {
                 dictDefaultMessage: "{{ __('app.dragDrop') }}",
                 url: "{{ route('task-review-files.store') }}",
                 headers: {
@@ -221,14 +221,14 @@
 
                 if (response?.error?.message) {
                     $('.error-block').removeClass('d-none');
-                    $('#error').html(response?.error?.message);
+                    $('#review-error').html(response?.error?.message);
                 }
 
                 var taskView = response.view;
                 taskDropzone.removeAllFiles();
                 $.easyUnblockUI();
 
-                $('#task-file-list').html(taskView);
+                $('#task-review-file-list').html(taskView);
             });
             taskDropzone.on('removedfile', function () {
                 var grp = $('div#file-upload-dropzone').closest(".form-group");
@@ -254,9 +254,9 @@
             });
         }
 
-        $('#cancel-taskfile').click(function () {
-            $('#save-taskfile-data-form').addClass('d-none');
-            $('#add-task-file').closest('.row').removeClass('d-none');
+        $('#cancel-taskreviewfile').click(function () {
+            $('#save-taskreview-data-form').addClass('d-none');
+            $('#add-task-review-file').closest('.row').removeClass('d-none');
             return false;
         });
     });

@@ -17,11 +17,26 @@
         font-size: 20px;
     }
     .submit-comment{
-        right: 10px;
-        top: 10px;
+        right: 37px;
+        top: 6px;
         border-radius: 100%;
         cursor: pointer;
-        padding: 5px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .cancel-comment{
+        right: 6px;
+        top: 6px;
+        border-radius: 100%;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     #comments_panel textarea{
         border-radius: 10px;
@@ -79,13 +94,20 @@
             let commentHtml = `
                 <div class="comment" style="top: ${y}px; left: ${x}px;">
                     <textarea class="comment-text" rows="2" placeholder="Enter your comment"></textarea>
-                    <div class="postion-relative">                
-                        <button class="submit-comment position-absolute"><i class="fa fa-check mr-1"></i></button>
+                    <div class="postion-relative flex">                
+                        <button class="submit-comment position-absolute btn btn-primary"><i class="fa fa-check"></i></button>
+                        <button class="cancel-comment position-absolute btn btn-secondary"><i class="fa fa-times"></i></button>
                     </div>
                 </div>
             `;
 
             $('.media-div').append(commentHtml);
+            
+            $('.comment textarea').focus();
+
+            $('.cancel-comment').on('click', function() {
+                $(this).closest('.comment').remove();
+            })
 
             $('.submit-comment').last().on('click', function() {
                 const comment = $('.comment').find('textarea').val();
