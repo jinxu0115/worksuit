@@ -98,7 +98,7 @@
     <input type="hidden" id="review_file" value="{{json_encode($review_file)}}"/>
     <input type="hidden" id="taskReviewComments" value="{{json_encode($taskReviewComments)}}"/>
     <input type="hidden" id="mode" value='{{$mode}}'/>
-    <div class="{{'position-relative media-div ' . ($mode == 'edit' ? 'col-9' : 'col-12')}}">
+    <div class="position-relative media-div col-9">
         <div class="media-element" >
             <video id="video_element">
                 <source src="{{ $review_file->file_url }}" type="video/{{ $extension }}">
@@ -112,7 +112,9 @@
             <div class="w-100" id="total_time_bar">
                 <div class="w-100" id="short_comments">
                     @foreach($taskReviewComments as $comment)
-                        <img src="/img/marker.png" class="comment-marker" data-time="{{$comment->time_frame}}" style="{{ 'left: ' . $comment->time_frame * 100 / $review_file->duration . '%;'}}"/>
+                        @if($comment->time_frame)
+                            <img src="/img/marker.png" class="comment-marker" data-time="{{$comment->time_frame}}" style="{{ 'left: ' . $comment->time_frame * 100 / $review_file->duration . '%;'}}"/>
+                        @endif
                     @endforeach
                 </div>
                 <div id="video_time_bar"></div>
@@ -134,28 +136,28 @@
             </div>
         @endif
     </div>
-    @if($mode == 'edit')
-        <div id="comments_panel" class="col-3">
-            <h3>Comments</h3>
-            @foreach($taskReviewComments as $comment)
-                <div class="row p-1">
-                    <div class="col-10">
-                        <textarea class="w-100">{{$comment->comment_text}}</textarea>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>{{$comment->user->name}}</div>
-                            <div>{{\Carbon\Carbon::parse($comment->created_at)->format(companyOrGlobalSetting()->date_format) . ' ' . \Carbon\Carbon::parse($comment->created_at)->format(company()->time_format)}}</div>
-                        </div>
+    <div id="comments_panel" class="col-3">
+        <h3>Comments</h3>
+        @foreach($taskReviewComments as $comment)
+            <div class="row p-1">
+                <div class="{{$mode == 'edit' ? 'col-9' : 'col-12'}}">
+                    <textarea class="w-100">{{$comment->comment_text}}</textarea>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>{{$comment->user->name}}</div>
+                        <div>{{\Carbon\Carbon::parse($comment->created_at)->format(companyOrGlobalSetting()->date_format) . ' ' . \Carbon\Carbon::parse($comment->created_at)->format(company()->time_format)}}</div>
                     </div>
+                </div>
+                @if($mode == 'edit')
                     <div class="col-2">
                         <x-forms.button-secondary class="btn-xs update-comment" data-comment-id="{{$comment->id}}" icon="edit">
                         </x-forms.button-secondary>
                         <x-forms.button-secondary class="btn-xs remove-comment" data-comment-id="{{$comment->id}}" icon="trash">
                         </x-forms.button-secondary>
                     </div>
-                </div>
-            @endforeach
-        </div>
-    @endif
+                @endif
+            </div>
+        @endforeach
+    </div>
 </div>
 
 <div class="modal-footer d-flex align-items-center justify-content-between">
