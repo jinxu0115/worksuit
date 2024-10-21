@@ -1264,7 +1264,7 @@ class HomeController extends Controller
         $userId = user()->id;
         $review_file->rejected = !$review_file->rejected;
         $review_file->save();
-        event(new TaskReviewFileEvent($task, $task->users, 'ApproveReview'));
+        // event(new TaskReviewFileEvent($task, $task->users, 'ApproveReview'));
         return 'success';
     }
 
