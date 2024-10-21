@@ -235,6 +235,7 @@ class User extends BaseModel
                 'user_id' => $user->id,
                 'assigned_to' => true,
                 'status' => true,
+                'revview_status' => true,
                 'action' => true,
                 'created_at' => now(),
                 'updated_at' => now(),

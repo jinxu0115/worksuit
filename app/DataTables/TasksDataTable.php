@@ -837,6 +837,7 @@ class TasksDataTable extends BaseDataTable
         if($tableColumn->creator_name == 0 || !checkCompanyAllowd('creator_name')) unset($data['creator_name']);
         if($tableColumn->project_name == 0 || !checkCompanyAllowd('project_name')) unset($data['project_name']);
         if($tableColumn->priority == 0 || !checkCompanyAllowd('priority')) unset($data['priority']);
+        if($tableColumn->review_status == 0 || !checkCompanyAllowd('review_status')) unset($data['review_status']);
 
         if($tableColumn->action == 0) {
             return array_merge($data);

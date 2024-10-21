@@ -34,6 +34,7 @@ class AddTaskColumnUser extends Seeder
                 'creator_name' => true,
                 'project_name' => true,
                 'priority' => true,
+                'review_status' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

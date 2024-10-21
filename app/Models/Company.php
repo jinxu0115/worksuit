@@ -318,6 +318,7 @@ class Company extends BaseModel
                 'creator_name' => true,
                 'project_name' => true,
                 'priority' => true,
+                'review_status' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
