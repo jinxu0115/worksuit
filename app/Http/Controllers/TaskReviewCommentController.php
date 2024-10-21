@@ -38,6 +38,7 @@ class TaskReviewCommentController extends Controller
         $taskReviewComment->position_top = $request['positionTop'];
         $taskReviewComment->position_left = $request['positionLeft'];
         $taskReviewComment->time_frame = $request['timeFrame'];
+        $taskReviewComment->user_id = user()->id;
         $taskReviewComment->save();
 
         $this->taskReviewComments = TaskReviewComment::where('review_file_id', $request['mediaId'])->get();
@@ -77,6 +78,7 @@ class TaskReviewCommentController extends Controller
     public function update(Request $request, TaskReviewComment $taskReviewComment)
     {
         $taskReviewComment->comment_text = $request->commentText;
+        $taskReviewComment->updated_by = user()->id;
         $taskReviewComment->save();
 
         $this->taskReviewComments = TaskReviewComment::where('review_file_id', $taskReviewComment->review_file_id)->get();

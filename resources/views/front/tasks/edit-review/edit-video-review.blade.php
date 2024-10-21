@@ -38,8 +38,27 @@
         align-items: center;
         justify-content: center;
     }
-    #comments_panel textarea{
-        border-radius: 10px;
+    textarea{
+        border-radius: 5px;
+        border: 1px solid #c9c9c9;
+    }
+    .update-comment{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+    }
+    .remove-comment{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        margin-top: 5px;
+    }
+    #comments_panel .row{
+        border-bottom: 1px solid gray;
     }
     #total_time_bar{
         height: 10px;
@@ -73,11 +92,11 @@
         cursor: pointer;
     }
 </style>
-<div class="modal-body text-center">
+<div class="modal-body text-center row px-10">
     <input type="hidden" id="review_file" value="{{json_encode($review_file)}}"/>
     <input type="hidden" id="taskReviewComments" value="{{json_encode($taskReviewComments)}}"/>
     <input type="hidden" id="mode" value='{{$mode}}'/>
-    <div class="position-relative media-div">
+    <div class="{{'position-relative media-div ' . ($mode == 'edit' ? 'col-9' : 'col-12')}}">
         <div class="media-element" >
             <video id="video_element">
                 <source src="{{ $review_file->file_url }}" type="video/{{ $extension }}">
@@ -100,20 +119,35 @@
         <div id="comments_in_image">
             
         </div>
+        @if($mode == 'edit')
+            <div class="row mt-3">
+                <div class="col-9">
+                    <textarea class="w-100" id="new_comment"></textarea>                
+                </div>
+                <div class="col-3">
+                    <x-forms.button-primary class="btn-xs" id="create_comment" icon="plus">
+                        Add Comment
+                    </x-forms.button-primary> 
+                </div>
+            </div>
+        @endif
     </div>
     @if($mode == 'edit')
-        <div id="comments_panel">
+        <div id="comments_panel" class="col-3">
+            <h3>Comments</h3>
             @foreach($taskReviewComments as $comment)
-                <div class="row mt-3">
-                    <div class="col-8">
-                        <textarea class="w-100 h-100">{{$comment->comment_text}}</textarea>
+                <div class="row p-1">
+                    <div class="col-10">
+                        <textarea class="w-100">{{$comment->comment_text}}</textarea>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>{{$comment->user->name}}</div>
+                            <div>{{\Carbon\Carbon::parse($comment->created_at)->format(companyOrGlobalSetting()->date_format) . ' ' . \Carbon\Carbon::parse($comment->created_at)->format(company()->time_format)}}</div>
+                        </div>
                     </div>
-                    <div class="col-4 d-flex justify-content-center">
-                        <x-forms.button-secondary class="btn-xs update-comment mr-2" data-comment-id="{{$comment->id}}" icon="edit">
-                            Update
+                    <div class="col-2">
+                        <x-forms.button-secondary class="btn-xs update-comment" data-comment-id="{{$comment->id}}" icon="edit">
                         </x-forms.button-secondary>
                         <x-forms.button-secondary class="btn-xs remove-comment" data-comment-id="{{$comment->id}}" icon="trash">
-                            Remove
                         </x-forms.button-secondary>
                     </div>
                 </div>
@@ -122,11 +156,47 @@
     @endif
 </div>
 
-<div class="modal-footer">
-  <x-forms.button-cancel data-dismiss="modal">@lang('app.close')</x-forms.button-cancel>
+<div class="modal-footer d-flex align-items-center justify-content-between">
+    <div class="d-flex">
+        <button class="btn btn-danger" id="reject_review">Reject</button>
+        <button class="btn btn-success ml-2" id="approve_review">Approve</button>
+    </div>
+    <x-forms.button-cancel data-dismiss="modal">@lang('app.close')</x-forms.button-cancel>
 </div>
 <script>
     $(document).ready(function () {
+        $('#reject_review').click(function() {
+            let review_file = JSON.parse($('#review_file').val());
+            const url = "{{ route('front.public.reject-review') }}";
+
+            $.ajax({
+                type: "POST",
+                url : url,
+                data: {
+                    reviewFileId : review_file.id,
+                    '_token': '{{csrf_token()}}'
+                },
+                success: function (response) {
+                    window.location.reload();
+                }
+            })
+        })
+        $('#approve_review').click(function() {
+            let review_file = JSON.parse($('#review_file').val());
+            const url = "{{ route('front.public.approve-review') }}";
+
+            $.ajax({
+                type: "POST",
+                url : url,
+                data: {
+                    reviewFileId : review_file.id,
+                    '_token': '{{csrf_token()}}'
+                },
+                success: function (response) {
+                    window.location.reload();
+                }
+            })
+        })
         video = document.getElementById('video_element');
 
         video.addEventListener('loadedmetadata', () => {
@@ -138,6 +208,39 @@
             $('.video-control-button').empty();
             $('.video-control-button').append('<i class="fa fa-play"></i>')
         });
+        $('#create_comment').on('click', function() {
+            let review_file = JSON.parse($('#review_file').val());
+            const comment = $('#new_comment').val();
+            if(comment == '') return ;
+            $.ajax({
+                type: "POST",
+                url: "{{ route('task-review-comment.store') }}",
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'mediaId' : review_file.id,
+                    'commentText' : comment.trim(),
+                },
+                success: function (response){
+                    if(response.status == 'success'){
+                        $('#new_comment').val('')
+                        $('#video_element').get(0).play();
+                        $('.video-control-button').empty();
+                        $('.video-control-button').append('<i class="fa fa-stop"></i>')
+                        $('#comments_panel').empty();
+                        $('#comments_panel').append(response.list_view);
+                        $('#short_comments').empty();
+                        $('#short_comments').append(response.comment_marker_view);
+                        $('.comment-marker').on('click', function() {
+                            video.currentTime = $(this).attr('data-time');
+                            video.pause();
+                            $('.video-control-button').empty();
+                            $('.video-control-button').append('<i class="fa fa-play"></i>')
+                        })
+                        $('#taskReviewComments').val(JSON.stringify(response.taskReviewComments));
+                    }
+                }
+            })
+        })
 
         $('.comment-marker').on('click', function() {
             video.currentTime = $(this).attr('data-time');
@@ -178,9 +281,11 @@
             })
             let html = '';
             comments.map((comment) => {
-                html += `<div class="position-absolute" style="top : ${comment.position_top * 100/comment.media_height}%; left: ${comment.position_left * 100/comment.media_width}%; position: absolute; background-color: rgba(255, 255, 255, 0.8); font-size: 20px; padding: 5px; z-index: 10;">
+                if(comment.media_width){
+                    html += `<div class="position-absolute" style="top : ${comment.position_top * 100/comment.media_height}%; left: ${comment.position_left * 100/comment.media_width}%; position: absolute; background-color: rgba(255, 255, 255, 0.8); font-size: 20px; padding: 5px; z-index: 10;">
                             ${comment.comment_text}
                         </div>`
+                }
             })
             $('#comments_in_image').empty();
             $('#comments_in_image').append(html);

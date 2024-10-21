@@ -1091,6 +1091,7 @@ class TaskController extends AccountBaseController
             break;
         }
 
+        $this->reviewPanelView = view('tasks.ajax.review_file', $this->data)->render();
         if (request()->ajax()) {
             $view = request('json') ? $this->tab : 'tasks.ajax.show';
 
@@ -1100,7 +1101,6 @@ class TaskController extends AccountBaseController
 
         $this->view = 'tasks.ajax.show';
         
-        $this->reviewPanelView = view('tasks.ajax.review_file', $this->data)->render();
 
         return view('tasks.create', $this->data);
 

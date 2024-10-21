@@ -1,14 +1,17 @@
+<h3>Comments</h3>
 @foreach($taskReviewComments as $comment)
-    <div class="row mt-3">
-        <div class="col-8">
-            <textarea class="w-100 h-100">{{$comment->comment_text}}</textarea>
+    <div class="row p-1">
+        <div class="col-10">
+            <textarea class="w-100">{{$comment->comment_text}}</textarea>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>{{$comment->user->name}}</div>
+                <div>{{\Carbon\Carbon::parse($comment->created_at)->format(companyOrGlobalSetting()->date_format) . ' ' . \Carbon\Carbon::parse($comment->created_at)->format(company()->time_format)}}</div>
+            </div>
         </div>
-        <div class="col-4 d-flex justify-content-center">
-            <x-forms.button-secondary class="btn-xs update-comment mr-2" data-comment-id="{{$comment->id}}" icon="edit">
-                Update
+        <div class="col-2">
+            <x-forms.button-secondary class="btn-xs update-comment" data-comment-id="{{$comment->id}}" icon="edit">
             </x-forms.button-secondary>
             <x-forms.button-secondary class="btn-xs remove-comment" data-comment-id="{{$comment->id}}" icon="trash">
-                Remove
             </x-forms.button-secondary>
         </div>
     </div>

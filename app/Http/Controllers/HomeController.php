@@ -1256,6 +1256,18 @@ class HomeController extends Controller
         return 'success';
     }
 
+    public function rejectReview()
+    {
+        $review_file_id = request()->reviewFileId;
+        $review_file = TaskReviewFile::findOrFail($review_file_id);
+        $task = Task::where('id', $review_file->task_id)->first();
+        $userId = user()->id;
+        $review_file->rejected = true;
+        $review_file->save();
+        event(new TaskReviewFileEvent($task, $task->users, 'ApproveReview'));
+        return 'success';
+    }
+
     public function showPieChart()
     {
         $this->chartData = json_decode(request()->chart_data, true);

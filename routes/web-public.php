@@ -30,6 +30,7 @@ Route::get('/change-lang/{locale}', [HomeController::class, 'changeLang'])->name
 Route::get('front/show-image', [HomeController::class, 'showImage'])->name('front.public.show_image');
 Route::get('front/edit-review', [HomeController::class, 'editReview'])->name('front.public.edit-review');
 Route::post('front/approve-review', [HomeController::class, 'approveReview'])->name('front.public.approve-review');
+Route::post('front/reject-review', [HomeController::class, 'rejectReview'])->name('front.public.reject-review');
 Route::get('front/show-piechart', [HomeController::class, 'showPieChart'])->name('front.public.show_piechart');
 
 Route::get('/invoice-stripe/stripe-modal/', [HomeController::class, 'stripeModal'])->name('front.stripe_modal');
