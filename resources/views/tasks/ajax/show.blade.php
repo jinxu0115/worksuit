@@ -15,7 +15,7 @@
             <div class="card bg-white border-0 b-shadow-4">
                 <div class="card-header bg-white  border-bottom-grey  justify-content-between p-20">
                     <div class="row">
-                        <div class="col-10">
+                        <div class="col-8">
                             @if ($changeStatusPermission == 'all'
                             || ($changeStatusPermission == 'added' && $task->added_by == user()->id)
                             || ($changeStatusPermission == 'owned' && in_array(user()->id, $taskUsers))
@@ -48,10 +48,7 @@
                                             @lang('modules.tasks.markIncomplete')
                                         </x-forms.button-secondary>
                                     @endif
-                                @endif                                
-                                <x-forms.button-secondary icon="check" class="assign-yourself mr-3" :disabled="$task->checkAssignMe()">
-                                    Assign Yourself
-                                </x-forms.button-secondary>
+                                @endif                      
                             @endif
 
                             @if ($task->boardColumn->slug != 'completed' && !is_null($task->is_task_user) && in_array('timelogs', user_modules()))
@@ -89,7 +86,11 @@
                                 @endif
                             @endif
                         </div>
-                        <div class="col-2 d-flex justify-content-end text-right">
+                        <div class="col-4 d-flex justify-content-end text-right">   
+                            <button class="{{'assign-yourself mr-3 btn ' . ($task->checkAssignMe() ? 'btn-warning' : 'btn-success')}}">
+                                <i class="fa fa-check mr-1"></i>
+                                {{$task->checkAssignMe() ? 'Unassign me' : 'Assign me'}}
+                            </button>       
                             <div class="dropdown">
                                 <button
                                     class="btn btn-lg f-14 px-2 py-1 text-dark-grey  rounded  dropdown-toggle"

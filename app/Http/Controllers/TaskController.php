@@ -1376,6 +1376,8 @@ class TaskController extends AccountBaseController
                 'task_id' => $taskId,
                 'user_id' => user()->id,
             ]);
+        } else {
+            $taskUser->delete();
         }
         return Reply::success(__('messages.updateSuccess'));
     }
