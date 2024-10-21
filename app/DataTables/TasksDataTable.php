@@ -766,7 +766,6 @@ class TasksDataTable extends BaseDataTable
         $data['creator_name'] = ['data' => 'created_by', 'name' => 'created_by', 'title' => 'Creator Name'];
         $data['project_name'] = ['data' => 'project_name', 'name' => 'project_name', 'title' => 'Project Name'];
         $data['priority'] = ['data' => 'priority', 'name' => 'priority', 'title' => 'Priority'];
-        $data['review_status'] = ['data' => 'review_status', 'name' => 'review_status', 'title' => 'Review Status'];
 
         if (in_array('client', user_roles())) {
 
@@ -790,6 +789,7 @@ class TasksDataTable extends BaseDataTable
                 $data[__('modules.tasks.assignTo')] = ['data' => 'users', 'name' => 'member.name', 'exportable' => false, 'title' => __('modules.tasks.assignTo')];
             }
 
+            $data['review_status'] = ['data' => 'review_status', 'name' => 'review_status', 'title' => 'Review Status'];
             if ($taskSettings->status == 'yes') {
                 $data[__('app.columnStatus')] = ['data' => 'board_column', 'name' => 'board_column', 'exportable' => false, 'searchable' => false, 'title' => __('app.columnStatus')];
             }
@@ -807,6 +807,7 @@ class TasksDataTable extends BaseDataTable
             }
 
             $data[__('modules.tasks.assignTo')] = ['data' => 'users', 'name' => 'member.name', 'exportable' => false, 'title' => __('modules.tasks.assignTo')];
+            $data['review_status'] = ['data' => 'review_status', 'name' => 'review_status', 'title' => 'Review Status'];
             $data[__('app.columnStatus')] = ['data' => 'board_column', 'name' => 'board_column', 'exportable' => false, 'searchable' => false, 'title' => __('app.columnStatus')];
 
         }
