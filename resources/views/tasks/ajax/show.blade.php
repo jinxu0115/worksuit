@@ -1016,7 +1016,7 @@
                             },
                             success: function (response) {
                                 if (response.status == "success") {
-                                    $('#task-file-list').html(response.view);
+                                    $('#task-review-file-list').html(response.view);
                                 }
                             }
                         });

@@ -1,6 +1,7 @@
 <style>
     .media-element{
-        width: 100%;
+        max-height: 100vh;
+        width: auto;
     }
     .comment{
         position : absolute;
