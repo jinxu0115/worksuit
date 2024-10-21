@@ -33,10 +33,8 @@ class TaskReviewCommentController extends Controller
         $taskReviewComment = new TaskReviewComment();
         $taskReviewComment->review_file_id = $request['mediaId'];
         $taskReviewComment->comment_text = $request['commentText'];
-        $taskReviewComment->media_width = $request['mediaWidth'];
-        $taskReviewComment->media_height = $request['mediaHeight'];
-        $taskReviewComment->position_top = $request['positionTop'];
-        $taskReviewComment->position_left = $request['positionLeft'];
+        $taskReviewComment->left_percentage = $request['left_percentage'];
+        $taskReviewComment->top_percentage = $request['top_percentage'];
         $taskReviewComment->time_frame = $request['timeFrame'];
         $taskReviewComment->user_id = user()->id;
         $taskReviewComment->save();

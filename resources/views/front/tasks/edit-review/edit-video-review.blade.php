@@ -1,6 +1,8 @@
 <style>
     #video_element{
-        width: 100%;
+        max-height: 100vh;
+        width: auto;
+        max-width: 100%;
     }
     .comment{
         position : absolute;
@@ -289,8 +291,8 @@
             })
             let html = '';
             comments.map((comment) => {
-                if(comment.media_width){
-                    html += `<div class="position-absolute" style="top : ${comment.position_top * 100/comment.media_height}%; left: ${comment.position_left * 100/comment.media_width}%; position: absolute; background-color: rgba(255, 255, 255, 0.8); font-size: 20px; padding: 5px; z-index: 10;">
+                if(comment.top_percentage){
+                    html += `<div class="position-absolute" style="top : ${comment.top_percentage}%; left: ${comment.left_percentage}%; position: absolute; background-color: rgba(255, 255, 255, 0.8); font-size: 20px; padding: 5px; z-index: 10;">
                             ${comment.comment_text}
                         </div>`
                 }
@@ -310,10 +312,12 @@
                 const offset = $(this).offset();
                 const x = e.pageX - offset.left;
                 const y = e.pageY - offset.top;
+                const relativeDivX = offset.left - $('.media-div').offset().left;
+                const relativeDivY = offset.top - $('.media-div').offset().top;
 
                 // Create a comment box
                 let commentHtml = `
-                    <div class="comment" style="top: ${y}px; left: ${x}px; background: transparent;">
+                    <div class="comment" style="top: ${y + relativeDivY}px; left: ${x + relativeDivX}px;">
                         <textarea class="comment-text" rows="2" placeholder="Enter your comment"></textarea>
                         <div class="postion-relative flex">                
                             <button class="submit-comment position-absolute btn btn-primary"><i class="fa fa-check"></i></button>
@@ -334,12 +338,7 @@
                     if (comment.trim()) {
                         const commentBox = $(this).closest('.comment');
                         const commentPosition = commentBox.position();
-                        let divHtml = `
-                            <div style="top: ${commentPosition.top}px; left: ${commentPosition.left}px; position: absolute; background-color: rgba(255, 255, 255, 0.8); font-size: 20px; padding: 5px; z-index: 10;">
-                                ${comment}
-                            </div>
-                        `;
-                        $('#comments_in_image').append(divHtml);
+                        
                         
                         commentBox.remove();
                         $.ajax({
@@ -349,10 +348,8 @@
                                 '_token': "{{ csrf_token() }}",
                                 'mediaId' : review_file.id,
                                 'commentText' : comment.trim(),
-                                'mediaWidth' : $('.media-element').width(),
-                                'mediaHeight' : $('.media-element').height(),
-                                'positionTop' : commentPosition.top,
-                                'positionLeft' : commentPosition.left,
+                                'left_percentage' : (x + relativeDivX) * 100 / $('.media-div').width(),
+                                'top_percentage' : (y + relativeDivY) * 100 / $('.media-div').height(),
                                 'timeFrame' : $('#video_element').get(0).currentTime
                             },
                             success: function (response){
