@@ -494,6 +494,7 @@
                 @endif
 
             </x-cards.data>
+            <h2 class="mt-3">Comments</h2>
             {!! $reviewPanelView !!}
         </div>
 

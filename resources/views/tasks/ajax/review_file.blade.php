@@ -96,7 +96,13 @@
                                         <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 view-review" data-review-file-id="{{$file->id}}" href="javascript:;">View</a>
                                         <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 edit-review" data-review-file-id="{{$file->id}}" href="javascript:;">Edit</a>
                                         @if($file->canApprove())
-                                            <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 approve-review" data-review-file-id="{{$file->id}}" href="javascript:;">Approve</a>
+                                            <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 approve-review" data-review-file-id="{{$file->id}}" href="javascript:;">
+                                                @if($file->isCreator())
+                                                    {{$file->approved_by_creator ? 'Unapprove' : 'Approve'}}
+                                                @elseif ($file->isManager())
+                                                    {{$file->approved_by_manager ? 'Unapprove' : 'Approve'}}
+                                                @endif
+                                            </a>
                                         @endif
                                         <a class="cursor-pointer d-block text-dark-grey f-13 py-3 px-3 "
                                         href="{{ route('task_review_files.downloadReviewFile', md5($file->id)) }}">@lang('app.download')</a>
@@ -108,7 +114,12 @@
                                     </div>
                                 </div>
                             </x-slot>
-                    </x-file-card>           
+                        @if($file->rejected)
+                            <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center" style="top: 0; left: 0; font-size: 30px; color: red;">
+                                Rejected
+                            </div>
+                        @endif
+                    </x-file-card>
                     @if($file->approved_by_creator)
                         <div data-toggle="tooltip" data-original-title="Approved By Creator" class="position-absolute" style="top: 0;"><i class="fas fa-check-circle" style="width: 30px; height: 30px; color: green;"></i></div>
                     @else

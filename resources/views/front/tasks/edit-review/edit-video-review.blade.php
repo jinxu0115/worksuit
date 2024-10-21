@@ -157,10 +157,18 @@
 </div>
 
 <div class="modal-footer d-flex align-items-center justify-content-between">
-    <div class="d-flex">
-        <button class="btn btn-danger" id="reject_review">Reject</button>
-        <button class="btn btn-success ml-2" id="approve_review">Approve</button>
-    </div>
+    @if($review_file->canApprove()) 
+        <div class="d-flex">
+            <button class="btn btn-danger" id="reject_review">{{$review_file->rejected ? 'Unreject' : 'Reject'}}</button>
+            <button class="btn btn-success ml-2" id="approve_review">
+                @if($review_file->isCreator())
+                    {{$review_file->approved_by_creator ? 'Unapprove' : 'Approve'}}
+                @elseif ($review_file->isManager())
+                    {{$review_file->approved_by_manager ? 'Unapprove' : 'Approve'}}
+                @endif
+            </button>
+        </div>
+    @endif
     <x-forms.button-cancel data-dismiss="modal">@lang('app.close')</x-forms.button-cancel>
 </div>
 <script>

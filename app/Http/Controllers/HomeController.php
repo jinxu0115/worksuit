@@ -1244,11 +1244,11 @@ class HomeController extends Controller
         $task = Task::where('id', $review_file->task_id)->first();
         $userId = user()->id;
         if($userId == $task->created_by){
-            $review_file->approved_by_creator = true;
+            $review_file->approved_by_creator = !$review_file->approved_by_creator;
         }
         $project = Project::where('id', $task->project_id)->first();
         if(!empty($project)){
-            if($project->approver == $userId) $review_file->approved_by_manager = true;
+            if($project->approver == $userId) $review_file->approved_by_manager = !$review_file->approved_by_manager;
         }
         $review_file->save();
         
@@ -1262,7 +1262,7 @@ class HomeController extends Controller
         $review_file = TaskReviewFile::findOrFail($review_file_id);
         $task = Task::where('id', $review_file->task_id)->first();
         $userId = user()->id;
-        $review_file->rejected = true;
+        $review_file->rejected = !$review_file->rejected;
         $review_file->save();
         event(new TaskReviewFileEvent($task, $task->users, 'ApproveReview'));
         return 'success';

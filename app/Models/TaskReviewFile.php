@@ -31,6 +31,20 @@ class TaskReviewFile extends Model
         $userId = user()->id;
         $task = Task::where('id', $this->task_id)->first();
         $project = Project::where('id', $task->project_id)->first();
-        return $task->created_by == $userId || $project->approver == $userId;
+        return $task->created_by == $userId || ((!empty($project)) && $project->approver == $userId);
+    }
+
+    public function isCreator(){        
+        $userId = user()->id;
+        $task = Task::where('id', $this->task_id)->first();
+        $project = Project::where('id', $task->project_id)->first();
+        return $task->created_by == $userId;
+    }
+
+    public function isManager(){        
+        $userId = user()->id;
+        $task = Task::where('id', $this->task_id)->first();
+        $project = Project::where('id', $task->project_id)->first();
+        return ((!empty($project)) && $project->approver == $userId);
     }
 }
