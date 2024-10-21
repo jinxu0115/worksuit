@@ -13,6 +13,7 @@ use App\Models\TaskSetting;
 use App\Models\TaskboardColumn;
 use App\Models\CustomFieldGroup;
 use App\Models\ProjectMilestone;
+use App\Models\TaskReviewFile;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Illuminate\Support\Facades\DB;
@@ -345,6 +346,21 @@ class TasksDataTable extends BaseDataTable
                     style="color: ' . $row->boardColumn->label_color . '"></i>' . $row->boardColumn->column_name . '</span>';
         });
 
+        $datatables->addColumn('review_status', function ($row) {
+            $reviewFiles = TaskReviewFile::where('task_id', $row->id)->get();
+            if(count($reviewFiles) == 0){
+                return '--';
+            } else {
+                foreach($reviewFiles as $file){
+                    if($file->rejected) return '<span><i class="fa fa-circle mr-1 text-red" style="color: #d21010;"></i>Rejected</span>';
+                }
+                if($row->canBeCompleted()){
+                    return '<span><i class="fa fa-circle mr-1 text-yellow" style="color: #679c0d;"></i>Approved</span>';
+                }
+                return '<span><i class="fa fa-circle mr-1 text-red" style="color: #00b5ff;"></i>Pending</span>';
+            }
+        });
+
         $datatables->addColumn('milestone', function ($row) use ($incompleteMilestones) {
             $status = ($row->milestone && $row->milestone->status == 'complete') ? $row->milestone->milestone_title : null ;
             
@@ -404,7 +420,7 @@ class TasksDataTable extends BaseDataTable
         // CustomField For export
         $customFieldColumns = CustomField::customFieldData($datatables, Task::CUSTOM_FIELD_MODEL);
 
-        $datatables->rawColumns(array_merge(['short_code', 'board_column', 'completed_on', 'action', 'clientName', 'due_date', 'users', 'heading', 'check', 'timeLogged', 'timer', 'start_date', 'milestone', 'priority'], $customFieldColumns));
+        $datatables->rawColumns(array_merge(['short_code', 'board_column', 'completed_on', 'action', 'clientName', 'due_date', 'users', 'heading', 'check', 'timeLogged', 'timer', 'start_date', 'milestone', 'priority', 'review_status'], $customFieldColumns));
 
         $taskColumn = TaskColumns::where('user_id', user()->id)->first();
 
@@ -750,6 +766,7 @@ class TasksDataTable extends BaseDataTable
         $data['creator_name'] = ['data' => 'created_by', 'name' => 'created_by', 'title' => 'Creator Name'];
         $data['project_name'] = ['data' => 'project_name', 'name' => 'project_name', 'title' => 'Project Name'];
         $data['priority'] = ['data' => 'priority', 'name' => 'priority', 'title' => 'Priority'];
+        $data['review_status'] = ['data' => 'review_status', 'name' => 'review_status', 'title' => 'Review Status'];
 
         if (in_array('client', user_roles())) {
 

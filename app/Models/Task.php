@@ -314,7 +314,7 @@ class Task extends BaseModel
     public function canBeCompleted(){
         $reviewFiles = TaskReviewFile::where('task_id', $this->id)->get();
         foreach ($reviewFiles as $file){
-            if($file->approved_by_creator == false || $file->approved_by_manager == false) return false;
+            if(($file->approved_by_creator == false || $file->approved_by_manager == false) && $file->rejected == false) return false;
         }
         return true;
     }
