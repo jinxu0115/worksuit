@@ -38,7 +38,9 @@ class TaskReviewCommentController extends Controller
             $taskReviewComment = new TaskReviewComment();
             $taskReviewComment->review_file_id = $request['fileId'];
             $taskReviewComment->comment_text = $comment['text'];
-            $taskReviewComment->time_frame = $comment['time'];
+            if (isset($comment['time'])) {
+                $taskReviewComment->time_frame = $comment['time'];
+            }
             $taskReviewComment->user_id = $comment['userId'];
             if (isset($comment['rectangle'])) {
                 $taskReviewComment->rect_data = json_encode($comment['rectangle']);

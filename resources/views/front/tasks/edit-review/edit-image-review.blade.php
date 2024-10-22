@@ -4,37 +4,47 @@
 <link rel="stylesheet" href="{{ url('/css/video-player/styles.css') }}">
 <style>
     .modal-dialog{
-        max-width: 95% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        margin: 0;
+    }
+    .modal-content{
+        height: 100%;
     }
 </style>
-<div class="modal-body text-center row px-10">
+<div class="modal-body text-center px-10">
     <input type="hidden" id="userInfo" value="{{json_encode(user())}}"/>
     <input type="hidden" id="reviewFileId" value="{{$review_file->id}}"/>
     <input type="hidden" id="review_file" value="{{json_encode($review_file)}}"/>
     <input type="hidden" id="taskReviewComments" value="{{json_encode($taskReviewComments)}}"/>
-    <div class="col-9">
-        <div class="video-container">
-            <img src="{{ $review_file->file_url }}" class="video-js vjs-default-skin" alt="Review Image">
+    <div class="d-flex justify-content-end">
+        <x-forms.button-cancel id="close-video-player-modal" data-dismiss="modal">@lang('app.close')</x-forms.button-cancel>
+    </div>    
+    <div class="row">
+        <div class="col-lg-9 col-12">
+            <div class="video-container">
+                <img src="{{ $review_file->file_url }}" class="video-js vjs-default-skin" alt="Review Image">
+            </div>
+
+            <!-- Input field and button for adding markers -->
+            @if($mode == 'edit')
+            <div class="marker-input-container">
+                <input type="text" id="marker-text-input" placeholder="Enter marker text here..." />
+                <button id="add-marker-button">Add Marker</button>
+                <div id="drawing-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+
+            </div>
+            @endif
         </div>
 
-        <!-- Input field and button for adding markers -->
-        @if($mode == 'edit')
-        <div class="marker-input-container">
-            <input type="text" id="marker-text-input" placeholder="Enter marker text here..." />
-            <button id="add-marker-button">Add Marker</button>
-            <div id="drawing-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
-
+        <div class="col-lg-3 col-12">
+            <!-- Marker list container -->
+            <div id="marker-list" class="marker-list-container"></div>
         </div>
-        @endif
-    </div>
-
-    <div class="col-3">
-        <!-- Marker list container -->
-        <div id="marker-list" class="marker-list-container"></div>
     </div>
 </div>
 
-<div class="modal-footer d-flex align-items-center justify-content-between">
+<div class="modal-footer d-flex align-items-center justify-content-start">
     @if($review_file->canApprove()) 
         <div class="d-flex">
             <button class="btn btn-danger" id="reject_review">{{$review_file->rejected ? 'Unreject' : 'Reject'}}</button>
@@ -47,7 +57,6 @@
             </button>
         </div>
     @endif
-    <x-forms.button-cancel id="close-video-player-modal" data-dismiss="modal">@lang('app.close')</x-forms.button-cancel>
 </div>
 <script>
     $('#close-video-player-modal').on('click', function() {

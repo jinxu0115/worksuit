@@ -3,7 +3,19 @@
     const videoPlayer = new VideoPlayer('my-video');
 	videoPlayer.player.videoPlayerInstance = videoPlayer;
 
+  function updateVideoHeight(isFullscreen) {
+      if (isFullscreen) {
+        $('video').css('max-height', '100vh')
+      } else {
+        $('video').css('max-height', '70vh')
+      }
+  }
 
+  // Listen for fullscreen change events
+  videoPlayer.player.on('fullscreenchange', function () {
+      const isFullscreen = videoPlayer.player.isFullscreen();
+      updateVideoHeight(isFullscreen);
+  });
     // Handle adding markers from user input
     const addMarkerButton = document.getElementById('add-marker-button');
     const markerTextInput = document.getElementById('marker-text-input');
@@ -20,23 +32,30 @@
 
       const markerName = userInfo.name;
       const photoUrl = userInfo.image_url;
-
-      // Create a marker object
-      const marker = {
-        time: currentTime,
-        photoUrl: photoUrl || null, // Use photoUrl from user info
-        text: markerText,
-        name: markerName,
-        timestamp: new Date().toISOString(),
-        isEditing: false,
-        userId : userInfo.id
-      };
+      let marker;
+      if($('#is-comment-only').is(':checked')){
+        marker = {
+          photoUrl: photoUrl || null, // Use photoUrl from user info
+          text: markerText,
+          name: markerName,
+          timestamp: new Date().toISOString(),
+          isEditing: false,
+          userId : userInfo.id
+        };
+      } else {
+        marker = {
+          time: currentTime,
+          photoUrl: photoUrl || null, // Use photoUrl from user info
+          text: markerText,
+          name: markerName,
+          timestamp: new Date().toISOString(),
+          isEditing: false,
+          userId : userInfo.id
+        };
+      }
 
       // Add the marker
       videoPlayer.addMarker(marker);
-
-      // Log the time and text to the console
-      console.log(`Marker added at ${currentTime.toFixed(2)}s: ${markerName} - ${markerText}`);
 
       // Clear the input field
       markerTextInput.value = '';

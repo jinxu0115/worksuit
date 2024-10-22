@@ -54,23 +54,22 @@ class VideoPlayer {
 
       // Clear existing annotations
       this.annotationContainer.innerHTML = "";
-
       if (marker && marker.rectangle) {
           const rectElement = document.createElement("div");
           rectElement.className = "annotation-rect";
 
           // No need to calculate scale factors since we use percentage
           rectElement.style.left = `${
-              (marker.rectangle.x / this.player.videoWidth()) * 100
+              (JSON.parse(marker.rectangle).x / this.player.videoWidth()) * 100
           }%`;
           rectElement.style.top = `${
-              (marker.rectangle.y / this.player.videoHeight()) * 100
+              (JSON.parse(marker.rectangle).y / this.player.videoHeight()) * 100
           }%`;
           rectElement.style.width = `${
-              (marker.rectangle.width / this.player.videoWidth()) * 100
+              (JSON.parse(marker.rectangle).width / this.player.videoWidth()) * 100
           }%`;
           rectElement.style.height = `${
-              (marker.rectangle.height / this.player.videoHeight()) * 100
+              (JSON.parse(marker.rectangle).height / this.player.videoHeight()) * 100
           }%`;
 
           this.annotationContainer.appendChild(rectElement);
@@ -346,6 +345,8 @@ class VideoPlayer {
 
   // Create marker element and append it to the progress bar
   createMarkerElement(marker, index) {
+
+    if(marker.time == null) return ;
       const duration = this.player.duration();
       const markerPosition = (marker.time / duration) * 100;
 
@@ -399,7 +400,6 @@ class VideoPlayer {
   // Render the list of markers
   // Render the list of markers
   renderMarkerList() {
-    console.log(this.markers)
       const markerListContainer = document.getElementById("marker-list");
       markerListContainer.innerHTML = ""; // Clear existing list
 
@@ -433,13 +433,15 @@ class VideoPlayer {
           const nameSpan = document.createElement("span");
           nameSpan.className = "marker-name";
           nameSpan.innerText = marker.name || "";
-
-          const timeSpan = document.createElement("span");
-          timeSpan.className = "marker-time";
-          timeSpan.innerText = `Time: ${marker.time.toFixed(2)}s`;
-
           header.appendChild(nameSpan);
-          header.appendChild(timeSpan);
+          
+          if(marker.time != null){
+            const timeSpan = document.createElement("span");
+            timeSpan.className = "marker-time";
+            timeSpan.innerText = `Time: ${marker.time.toFixed(2)}s`;
+  
+            header.appendChild(timeSpan);            
+          }
 
           // Timestamp span
           const timestampSpan = document.createElement("span");
@@ -510,12 +512,14 @@ class VideoPlayer {
 
               listItem.classList.add("editing");
           } else {
-            console.log(marker)
               // --- Display Mode ---
               if (marker.rectangle) {
                   const annotationIndicator = document.createElement("span");
                   annotationIndicator.className = "annotation-indicator";
-                  annotationIndicator.innerText = "🖍️ Annotation";
+                  annotationIndicator.innerHTML = '<img src="/img/nfc-pen.svg" style="width: 14px; height: 20px;"/>';
+                  annotationIndicator.setAttribute('data-toggle', 'tooltip');
+                  annotationIndicator.setAttribute('data-original-title', 'This is an annotation');
+
                   header.appendChild(annotationIndicator);
               }
 
@@ -525,37 +529,39 @@ class VideoPlayer {
 
               const buttonContainer = document.createElement("div");
               buttonContainer.className = "marker-button-container";
+              if(marker.time != null) {
+                const goToButton = document.createElement("button");
+                goToButton.className = "go-to-marker";
+                goToButton.setAttribute("title", "Go to");
+                goToButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      `;
 
-              const goToButton = document.createElement("button");
-              goToButton.className = "go-to-marker";
-              goToButton.setAttribute("title", "Go to");
-              goToButton.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-        <path d="M8 5v14l11-7z"/>
-      </svg>
-    `;
+                const goToPauseButton = document.createElement("button");
+                goToPauseButton.className = "go-to-pause-marker";
+                goToPauseButton.setAttribute("title", "Go to and Pause");
+                goToPauseButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+        </svg>
+      `;
 
-              const goToPauseButton = document.createElement("button");
-              goToPauseButton.className = "go-to-pause-marker";
-              goToPauseButton.setAttribute("title", "Go to and Pause");
-              goToPauseButton.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-      </svg>
-    `;
+                // Use marker.time for seeking operations
+                goToButton.addEventListener("click", () => {
+                    this.player.currentTime(marker.time);
+                    this.player.play();
+                });
 
-              // Use marker.time for seeking operations
-              goToButton.addEventListener("click", () => {
-                  this.player.currentTime(marker.time);
-                  this.player.play();
-              });
+                goToPauseButton.addEventListener("click", () => {
+                    this.player.currentTime(marker.time);
+                    this.player.pause();
+                });
+                buttonContainer.appendChild(goToButton);
+                buttonContainer.appendChild(goToPauseButton);
+              }
 
-              goToPauseButton.addEventListener("click", () => {
-                  this.player.currentTime(marker.time);
-                  this.player.pause();
-              });
-              buttonContainer.appendChild(goToButton);
-              buttonContainer.appendChild(goToPauseButton);
               if(JSON.parse($('#userInfo').val()).id == marker.userId){
                 const editButton = document.createElement("button");
                 editButton.className = "edit-marker";
@@ -568,7 +574,7 @@ class VideoPlayer {
 
                 editButton.addEventListener("click", () => {
                     marker.isEditing = true;
-                    renderMarkerList();
+                    this.renderMarkerList();
                 });                
                 buttonContainer.appendChild(editButton);
               }
@@ -603,7 +609,7 @@ class VideoPlayer {
                             buttonsStyling: false
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                deleteMarker(originalIndex);
+                                this.deleteMarker(originalIndex);
                             }
                         });
                     });
