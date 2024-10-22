@@ -5,6 +5,7 @@
 <div class="modal-body text-center row px-10">
     <input type="hidden" id="userInfo" value="{{json_encode(user())}}"/>
     <input type="hidden" id="reviewFileId" value="{{$review_file->id}}"/>
+    <input type="hidden" id="review_file" value="{{json_encode($review_file)}}"/>
     <input type="hidden" id="taskReviewComments" value="{{json_encode($taskReviewComments)}}"/>
     <div class="col-9">
         <div class="video-container">
@@ -46,6 +47,38 @@
 <script>
     $('#close-video-player-modal').on('click', function() {
         window.location.reload()
+    })
+    $('#reject_review').click(function() {
+        let review_file = JSON.parse($('#review_file').val());
+        const url = "{{ route('front.public.reject-review') }}";
+
+        $.ajax({
+            type: "POST",
+            url : url,
+            data: {
+                reviewFileId : review_file.id,
+                '_token': '{{csrf_token()}}'
+            },
+            success: function (response) {
+                window.location.reload();
+            }
+        })
+    })
+    $('#approve_review').click(function() {
+        let review_file = JSON.parse($('#review_file').val());
+        const url = "{{ route('front.public.approve-review') }}";
+
+        $.ajax({
+            type: "POST",
+            url : url,
+            data: {
+                reviewFileId : review_file.id,
+                '_token': '{{csrf_token()}}'
+            },
+            success: function (response) {
+                window.location.reload();
+            }
+        })
     })
     let taskReviewComments = JSON.parse($('#taskReviewComments').val());
     if(taskReviewComments.length > 0){

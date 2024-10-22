@@ -6,6 +6,8 @@
 <div class="modal-body text-center row px-10">
     <input type="hidden" id="userInfo" value="{{json_encode(user())}}"/>
     <input type="hidden" id="reviewFileId" value="{{$review_file->id}}"/>
+    <input type="hidden" id="review_file" value="{{json_encode($review_file)}}"/>
+
     <div class="col-9">
         <div class="video-container">
             <video

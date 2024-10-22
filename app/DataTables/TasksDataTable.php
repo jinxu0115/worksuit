@@ -351,11 +351,11 @@ class TasksDataTable extends BaseDataTable
             if(count($reviewFiles) == 0){
                 return '--';
             } else {
-                foreach($reviewFiles as $file){
-                    if($file->rejected) return '<span><i class="fa fa-circle mr-1 text-red" style="color: #d21010;"></i>Rejected</span>';
-                }
                 if($row->canBeCompleted()){
                     return '<span><i class="fa fa-circle mr-1 text-yellow" style="color: #679c0d;"></i>Approved</span>';
+                }
+                foreach($reviewFiles as $file){
+                    if($file->rejected) return '<span><i class="fa fa-circle mr-1 text-red" style="color: #d21010;"></i>Rejected</span>';
                 }
                 return '<span><i class="fa fa-circle mr-1 text-red" style="color: #00b5ff;"></i>Pending</span>';
             }
