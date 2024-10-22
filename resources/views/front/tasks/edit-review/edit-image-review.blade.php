@@ -18,9 +18,21 @@
     <input type="hidden" id="reviewFileId" value="{{$review_file->id}}"/>
     <input type="hidden" id="review_file" value="{{json_encode($review_file)}}"/>
     <input type="hidden" id="taskReviewComments" value="{{json_encode($taskReviewComments)}}"/>
-    <div class="d-flex justify-content-end">
+    <div class="d-flex justify-content-between">
+        @if($review_file->canApprove()) 
+            <div class="d-flex">
+                <button class="btn btn-danger" id="reject_review">{{$review_file->rejected ? 'Unreject' : 'Reject'}}</button>
+                <button class="btn btn-success ml-2" id="approve_review">
+                    @if($review_file->isCreator())
+                        {{$review_file->approved_by_creator ? 'Unapprove' : 'Approve'}}
+                    @elseif ($review_file->isManager())
+                        {{$review_file->approved_by_manager ? 'Unapprove' : 'Approve'}}
+                    @endif
+                </button>
+            </div>
+        @endif
         <x-forms.button-cancel id="close-video-player-modal" data-dismiss="modal">@lang('app.close')</x-forms.button-cancel>
-    </div>    
+    </div>  
     <div class="row">
         <div class="col-lg-9 col-12">
             <div class="video-container">
@@ -43,21 +55,6 @@
             <div id="marker-list" class="marker-list-container"></div>
         </div>
     </div>
-</div>
-
-<div class="modal-footer d-flex align-items-center justify-content-start">
-    @if($review_file->canApprove()) 
-        <div class="d-flex">
-            <button class="btn btn-danger" id="reject_review">{{$review_file->rejected ? 'Unreject' : 'Reject'}}</button>
-            <button class="btn btn-success ml-2" id="approve_review">
-                @if($review_file->isCreator())
-                    {{$review_file->approved_by_creator ? 'Unapprove' : 'Approve'}}
-                @elseif ($review_file->isManager())
-                    {{$review_file->approved_by_manager ? 'Unapprove' : 'Approve'}}
-                @endif
-            </button>
-        </div>
-    @endif
 </div>
 <script>
     $('#close-video-player-modal').on('click', function() {

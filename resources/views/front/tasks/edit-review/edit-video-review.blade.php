@@ -18,7 +18,19 @@
     <input type="hidden" id="userInfo" value="{{json_encode(user())}}"/>
     <input type="hidden" id="reviewFileId" value="{{$review_file->id}}"/>
     <input type="hidden" id="review_file" value="{{json_encode($review_file)}}"/>
-    <div class="d-flex justify-content-end">
+    <div class="d-flex justify-content-between">
+        @if($review_file->canApprove()) 
+            <div class="d-flex">
+                <button class="btn btn-danger" id="reject_review">{{$review_file->rejected ? 'Unreject' : 'Reject'}}</button>
+                <button class="btn btn-success ml-2" id="approve_review">
+                    @if($review_file->isCreator())
+                        {{$review_file->approved_by_creator ? 'Unapprove' : 'Approve'}}
+                    @elseif ($review_file->isManager())
+                        {{$review_file->approved_by_manager ? 'Unapprove' : 'Approve'}}
+                    @endif
+                </button>
+            </div>
+        @endif
         <x-forms.button-cancel id="close-video-player-modal" data-dismiss="modal">@lang('app.close')</x-forms.button-cancel>
     </div>    
     <div class="row">
@@ -56,21 +68,6 @@
             <div id="marker-list" class="marker-list-container"></div>
         </div>
     </div>
-</div>
-
-<div class="modal-footer d-flex align-items-center justify-content-start">
-    @if($review_file->canApprove()) 
-        <div class="d-flex">
-            <button class="btn btn-danger" id="reject_review">{{$review_file->rejected ? 'Unreject' : 'Reject'}}</button>
-            <button class="btn btn-success ml-2" id="approve_review">
-                @if($review_file->isCreator())
-                    {{$review_file->approved_by_creator ? 'Unapprove' : 'Approve'}}
-                @elseif ($review_file->isManager())
-                    {{$review_file->approved_by_manager ? 'Unapprove' : 'Approve'}}
-                @endif
-            </button>
-        </div>
-    @endif    
 </div>
   <!-- Video.js JavaScript -->
   <script src="/js/video-player/video.js"></script> 
