@@ -465,7 +465,7 @@ class VideoPlayer {
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
         <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"/>
       </svg>
-      <span class="button-text">Save Changes</span>
+      <span class="button-text">Update</span>
     `;
 
               const cancelButton = document.createElement("button");
@@ -550,60 +550,62 @@ class VideoPlayer {
                   this.player.currentTime(marker.time);
                   this.player.pause();
               });
+              if(JSON.parse($('#userInfo').val()).id == marker.userId){
+                const editButton = document.createElement("button");
+                editButton.className = "edit-marker";
+                editButton.setAttribute("title", "Edit");
+                editButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                    <path d="M3 17.25V21h3.75l11-11.062-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 00-1.42 0L15.13 4.96l3.75 3.75 1.83-1.67z"></path>
+                </svg>
+                `;
 
-              const editButton = document.createElement("button");
-              editButton.className = "edit-marker";
-              editButton.setAttribute("title", "Edit");
-              editButton.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-        <path d="M3 17.25V21h3.75l11-11.062-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 00-1.42 0L15.13 4.96l3.75 3.75 1.83-1.67z"></path>
-      </svg>
-    `;
+                editButton.addEventListener("click", () => {
+                    marker.isEditing = true;
+                    renderMarkerList();
+                });                
+                buttonContainer.appendChild(editButton);
+              }
+              if(JSON.parse($('#userInfo').val()).id == marker.userId){
+                    const deleteButton = document.createElement("button");
+                    deleteButton.className = "delete-marker";
+                    deleteButton.setAttribute("title", "Delete");
+                    deleteButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                            <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"></path>
+                        </svg>
+                        `;
 
-              editButton.addEventListener("click", () => {
-                  marker.isEditing = true;
-                  this.renderMarkerList();
-              });
-
-              const deleteButton = document.createElement("button");
-              deleteButton.className = "delete-marker";
-              deleteButton.setAttribute("title", "Delete");
-              deleteButton.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-        <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"></path>
-      </svg>
-    `;
-
-              // Use originalIndex for delete operation
-              deleteButton.addEventListener("click", () => {
-                  Swal.fire({
-                      title: "Are you sure?",
-                      text: "You will not be able to recover the deleted record!",
-                      icon: 'warning',
-                      showCancelButton: true,
-                      focusConfirm: false,
-                      confirmButtonText: "Yes, Delete It!",
-                      cancelButtonText: "Cancel",
-                      customClass: {
-                          confirmButton: 'btn btn-primary mr-3',
-                          cancelButton: 'btn btn-secondary'
-                      },
-                      showClass: {
-                          popup: 'swal2-noanimation',
-                          backdrop: 'swal2-noanimation'
-                      },
-                      buttonsStyling: false
-                  }).then((result) => {
-                      if (result.isConfirmed) {
-                        this.deleteMarker(originalIndex);
-                      }
-                  });
-              });
+                    // Use originalIndex for delete operation
+                    deleteButton.addEventListener("click", () => {
+                        Swal.fire({
+                            title: "Are you sure?",
+                            text: "You will not be able to recover the deleted record!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            focusCancel: true,
+                            confirmButtonText: "Yes, Delete It!",
+                            cancelButtonText: "Cancel",
+                            customClass: {
+                                confirmButton: 'btn btn-primary mr-3',
+                                cancelButton: 'btn btn-secondary'
+                            },
+                            showClass: {
+                                popup: 'swal2-noanimation',
+                                backdrop: 'swal2-noanimation'
+                            },
+                            buttonsStyling: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                deleteMarker(originalIndex);
+                            }
+                        });
+                    });
+                    buttonContainer.appendChild(deleteButton);
+                }
 
               buttonContainer.appendChild(goToButton);
               buttonContainer.appendChild(goToPauseButton);
-              buttonContainer.appendChild(editButton);
-              buttonContainer.appendChild(deleteButton);
 
               contentContainer.appendChild(header);
               contentContainer.appendChild(textSpan);

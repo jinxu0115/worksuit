@@ -6,22 +6,26 @@
     <input type="hidden" id="userInfo" value="{{json_encode(user())}}"/>
     <input type="hidden" id="reviewFileId" value="{{$review_file->id}}"/>
     <input type="hidden" id="taskReviewComments" value="{{json_encode($taskReviewComments)}}"/>
-    <div class="video-container">
-        <img src="{{ $review_file->file_url }}" class="video-js vjs-default-skin" alt="Review Image">
+    <div class="col-9">
+        <div class="video-container">
+            <img src="{{ $review_file->file_url }}" class="video-js vjs-default-skin" alt="Review Image">
+        </div>
+
+        <!-- Input field and button for adding markers -->
+        @if($mode == 'edit')
+        <div class="marker-input-container">
+            <input type="text" id="marker-text-input" placeholder="Enter marker text here..." />
+            <button id="add-marker-button">Add Marker</button>
+            <div id="drawing-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+
+        </div>
+        @endif
     </div>
 
-    <!-- Input field and button for adding markers -->
-    @if($mode == 'edit')
-    <div class="marker-input-container">
-        <input type="text" id="marker-text-input" placeholder="Enter marker text here..." />
-        <button id="add-marker-button">Add Marker</button>
-        <div id="drawing-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
-
+    <div class="col-3">
+        <!-- Marker list container -->
+        <div id="marker-list" class="marker-list-container"></div>
     </div>
-    @endif
-
-    <!-- Marker list container -->
-    <div id="marker-list" class="marker-list-container"></div>
 </div>
 
 <div class="modal-footer d-flex align-items-center justify-content-between">
@@ -189,7 +193,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
                         <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"/>
                     </svg>
-                    <span class="button-text">Save Changes</span>
+                    <span class="button-text">Update</span>
                     `;
 
               const cancelButton = document.createElement("button");
@@ -246,58 +250,60 @@
               const buttonContainer = document.createElement("div");
               buttonContainer.className = "marker-button-container";
 
-
-              const editButton = document.createElement("button");
-              editButton.className = "edit-marker";
-              editButton.setAttribute("title", "Edit");
-              editButton.innerHTML = `
+              if(JSON.parse($('#userInfo').val()).id == marker.user_id){
+                const editButton = document.createElement("button");
+                editButton.className = "edit-marker";
+                editButton.setAttribute("title", "Edit");
+                editButton.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
                     <path d="M3 17.25V21h3.75l11-11.062-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 00-1.42 0L15.13 4.96l3.75 3.75 1.83-1.67z"></path>
                 </svg>
                 `;
 
-              editButton.addEventListener("click", () => {
-                  marker.isEditing = true;
-                  renderMarkerList();
-              });
+                editButton.addEventListener("click", () => {
+                    marker.isEditing = true;
+                    renderMarkerList();
+                });                
+                buttonContainer.appendChild(editButton);
+              }
+              if(JSON.parse($('#userInfo').val()).id == marker.user_id){
+                    const deleteButton = document.createElement("button");
+                    deleteButton.className = "delete-marker";
+                    deleteButton.setAttribute("title", "Delete");
+                    deleteButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                            <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"></path>
+                        </svg>
+                        `;
 
-              const deleteButton = document.createElement("button");
-              deleteButton.className = "delete-marker";
-              deleteButton.setAttribute("title", "Delete");
-              deleteButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                    <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"></path>
-                </svg>
-                `;
+                    // Use originalIndex for delete operation
+                    deleteButton.addEventListener("click", () => {
+                        Swal.fire({
+                            title: "Are you sure?",
+                            text: "You will not be able to recover the deleted record!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            focusCancel: true,
+                            confirmButtonText: "Yes, Delete It!",
+                            cancelButtonText: "Cancel",
+                            customClass: {
+                                confirmButton: 'btn btn-primary mr-3',
+                                cancelButton: 'btn btn-secondary'
+                            },
+                            showClass: {
+                                popup: 'swal2-noanimation',
+                                backdrop: 'swal2-noanimation'
+                            },
+                            buttonsStyling: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                deleteMarker(originalIndex);
+                            }
+                        });
+                    });
+                    buttonContainer.appendChild(deleteButton);
+                }
 
-              // Use originalIndex for delete operation
-              deleteButton.addEventListener("click", () => {
-                  Swal.fire({
-                      title: "Are you sure?",
-                      text: "You will not be able to recover the deleted record!",
-                      icon: 'warning',
-                      showCancelButton: true,
-                      focusCancel: true,
-                      confirmButtonText: "Yes, Delete It!",
-                      cancelButtonText: "Cancel",
-                      customClass: {
-                          confirmButton: 'btn btn-primary mr-3',
-                          cancelButton: 'btn btn-secondary'
-                      },
-                      showClass: {
-                          popup: 'swal2-noanimation',
-                          backdrop: 'swal2-noanimation'
-                      },
-                      buttonsStyling: false
-                  }).then((result) => {
-                      if (result.isConfirmed) {
-                        deleteMarker(originalIndex);
-                      }
-                  });
-              });
-
-              buttonContainer.appendChild(editButton);
-              buttonContainer.appendChild(deleteButton);
 
               contentContainer.appendChild(header);
               contentContainer.appendChild(textSpan);

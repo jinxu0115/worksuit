@@ -25,8 +25,8 @@
 
                             <div class="dropdown-menu dropdown-menu-right border-grey rounded b-shadow-4 p-0"
                                 aria-labelledby="dropdownMenuLink" tabindex="0">
-                                <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 view-review" data-review-file-id="{{$file->id}}" href="javascript:;">View</a>
                                 <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 edit-review" data-review-file-id="{{$file->id}}" href="javascript:;">Edit</a>
+                                <!-- <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 view-review" data-review-file-id="{{$file->id}}" href="javascript:;">View</a> -->
                                 @if($file->canApprove())
                                     <a class="cursor-pointer d-block text-dark-grey f-13 pt-3 px-3 approve-review" data-review-file-id="{{$file->id}}" href="javascript:;">
                                         @if($file->isCreator())
