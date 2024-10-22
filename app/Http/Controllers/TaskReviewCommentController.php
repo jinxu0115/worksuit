@@ -30,27 +30,32 @@ class TaskReviewCommentController extends Controller
      */
     public function store(Request $request)
     {
-        $taskReviewComment = new TaskReviewComment();
-        $taskReviewComment->review_file_id = $request['mediaId'];
-        $taskReviewComment->comment_text = $request['commentText'];
-        $taskReviewComment->left_percentage = $request['left_percentage'];
-        $taskReviewComment->top_percentage = $request['top_percentage'];
-        $taskReviewComment->time_frame = $request['timeFrame'];
-        $taskReviewComment->user_id = user()->id;
-        $taskReviewComment->save();
+        TaskReviewComment::where('review_file_id', $request['fileId'])->delete();
 
-        $this->taskReviewComments = TaskReviewComment::where('review_file_id', $request['mediaId'])->get();
-        $this->review_file = TaskReviewFile::where('id', $request['mediaId'])->first();
-
-        $media_view = view('front.tasks.edit-review.show-media-comments', $this->data)->render();
-        if($this->review_file->duration){
-            $list_view = view('front.tasks.edit-review.show-video-comments', $this->data)->render();
-            $comment_marker_view = view('front.tasks.edit-review.comments-marker-show', $this->data)->render();
-            return Reply::dataOnly(['status' => 'success', 'list_view' => $list_view, 'media_view' => $media_view, 'taskReviewComments' => $this->taskReviewComments, 'comment_marker_view' => $comment_marker_view]);
-        } else {
-            $list_view = view('front.tasks.edit-review.show-image-comments', $this->data)->render();
-            return Reply::dataOnly(['status' => 'success', 'list_view' => $list_view, 'media_view' => $media_view, 'taskReviewComments' => $this->taskReviewComments]);
+        $comments = $request['markers'];
+        if(!$request['markers']) return 'success';
+        foreach ($comments as $comment){
+            $taskReviewComment = new TaskReviewComment();
+            $taskReviewComment->review_file_id = $request['fileId'];
+            $taskReviewComment->comment_text = $comment['text'];
+            $taskReviewComment->time_frame = $comment['time'];
+            $taskReviewComment->user_id = $comment['userId'];
+            $taskReviewComment->save();
         }
+        return 'success';
+
+        // $this->taskReviewComments = TaskReviewComment::where('review_file_id', $request['mediaId'])->get();
+        // $this->review_file = TaskReviewFile::where('id', $request['mediaId'])->first();
+
+        // $media_view = view('front.tasks.edit-review.show-media-comments', $this->data)->render();
+        // if($this->review_file->duration){
+        //     $list_view = view('front.tasks.edit-review.show-video-comments', $this->data)->render();
+        //     $comment_marker_view = view('front.tasks.edit-review.comments-marker-show', $this->data)->render();
+        //     return Reply::dataOnly(['status' => 'success', 'list_view' => $list_view, 'media_view' => $media_view, 'taskReviewComments' => $this->taskReviewComments, 'comment_marker_view' => $comment_marker_view]);
+        // } else {
+        //     $list_view = view('front.tasks.edit-review.show-image-comments', $this->data)->render();
+        //     return Reply::dataOnly(['status' => 'success', 'list_view' => $list_view, 'media_view' => $media_view, 'taskReviewComments' => $this->taskReviewComments]);
+        // }
         
     }
 
@@ -101,19 +106,28 @@ class TaskReviewCommentController extends Controller
         $review_file_id = $taskReviewComment->review_file_id;
         $taskReviewComment->delete();
 
-        $this->taskReviewComments = TaskReviewComment::where('review_file_id', $review_file_id)->get();
+        return TaskReviewComment::where('review_file_id', $review_file_id)->with('user')->get();
+    }
 
-        $this->review_file = TaskReviewFile::where('id', $review_file_id)->first();
+    public function getAllComments(Request $request){
+        $comments = TaskReviewComment::where('review_file_id', $request->fileId)->with('user')->get();
+        return $comments;
+    }
 
-        $media_view = view('front.tasks.edit-review.show-media-comments', $this->data)->render();
-        
-        if($this->review_file->duration){
-            $list_view = view('front.tasks.edit-review.show-video-comments', $this->data)->render();
-            $comment_marker_view = view('front.tasks.edit-review.comments-marker-show', $this->data)->render();
-            return Reply::dataOnly(['status' => 'success', 'list_view' => $list_view, 'media_view' => $media_view, 'taskReviewComments' => $this->taskReviewComments, 'comment_marker_view' => $comment_marker_view]);
-        } else {
-            $list_view = view('front.tasks.edit-review.show-image-comments', $this->data)->render();
-            return Reply::dataOnly(['status' => 'success', 'list_view' => $list_view, 'media_view' => $media_view, 'taskReviewComments' => $this->taskReviewComments]);
-        }
+    public function storeImageComment(Request $request){
+        $taskReviewComment = new TaskReviewComment();
+        $taskReviewComment->review_file_id = $request['fileId'];
+        $taskReviewComment->comment_text = $request['commentText'];
+        $taskReviewComment->user_id = user()->id;
+        $taskReviewComment->save();
+        return TaskReviewComment::where('review_file_id', $request->fileId)->with('user')->get();
+    }
+    
+    public function updateImageComment(Request $request){
+        $taskReviewComment = TaskReviewComment::where('id', $request->commentId)->first();
+        $taskReviewComment->comment_text = $request['commentText'];
+        $taskReviewComment->updated_by = user()->id;
+        $taskReviewComment->save();
+        return TaskReviewComment::where('review_file_id', $taskReviewComment->review_file_id)->with('user')->get();
     }
 }

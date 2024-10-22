@@ -1,0 +1,492 @@
+  /* Root variables with an expanded color palette and refined typography */
+:root {
+  /* Color System */
+  --primary-color: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-dark: #1d4ed8;
+  --secondary-color: #64748b;
+  --success-color: #22c55e;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --info-color: #06b6d4;
+  
+  /* Neutral Colors */
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  
+  /* Spacing */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  
+  /* Components */
+  --border-radius-sm: 0.25rem;
+  --border-radius: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Global styles */
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--gray-100);
+  color: var(--gray-800);
+  line-height: 1.5;
+}
+
+/* Container styles */
+.video-container {
+  max-width: 1024px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 var(--spacing-4);
+  box-sizing: border-box;
+}
+.go-to-pause-marker {
+  background-color: var(--info-color);
+}
+
+.go-to-pause-marker:hover {
+  background-color: var(--info-color);
+  transform: scale(1.05);
+}
+.vjs-draw-button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.vjs-draw-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+/* Enhanced Video.js player */
+.video-js {
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  background-color: var(--gray-900);
+}
+
+/* Custom marker styles */
+.custom-marker {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  top: -32px;
+  transform: translateX(-50%);
+  cursor: pointer;
+  z-index: 10;
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+  background-color: var(--primary-color);
+  border: 2px solid var(--gray-50);
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-md);
+}
+
+.custom-marker:hover {
+  transform: translateX(-50%) scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.custom-marker img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Enhanced tooltip styles */
+.marker-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background-color: var(--gray-800);
+  color: var(--gray-50);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  text-align: left;
+}
+
+.custom-marker:hover .marker-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Input container styles */
+.marker-input-container {
+  max-width: 1024px;
+  margin: var(--spacing-8) auto;
+  padding: 0 var(--spacing-4);
+  display: flex;
+  gap: var(--spacing-3);
+  width: 100%;
+}
+
+.marker-input-container input {
+  flex: 1;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--font-size-base);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  background-color: var(--gray-50);
+  transition: all 0.2s ease;
+}
+
+.marker-input-container input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.marker-input-container button {
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.marker-input-container button:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Marker list styles */
+.marker-list-container {
+  max-width: 1024px;
+  margin: var(--spacing-8) auto;
+  padding: 0 var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  width: 100%;
+}
+
+.marker-list-item {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--spacing-4);
+  background-color: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.marker-list-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.marker-list-photo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-full);
+  margin-right: var(--spacing-4);
+  object-fit: cover;
+  border: 2px solid var(--gray-200);
+}
+
+.marker-content-container {
+  flex: 1;
+  min-width: 0; /* Add this to prevent flex item from overflowing */
+  width: 100%; /* Add this to ensure full width */
+  text-align: start;
+}
+
+.marker-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-2);
+}
+
+.marker-name {
+  font-weight: 600;
+  color: var(--gray-900);
+  font-size: var(--font-size-lg);
+}
+
+.marker-time {
+  color: var(--gray-500);
+  font-size: var(--font-size-sm);
+}
+
+.marker-text {
+  color: var(--gray-700);
+  margin: var(--spacing-2) 0;
+  line-height: 1.6;
+}
+
+.marker-timestamp {
+  color: var(--gray-400);
+  font-size: var(--font-size-xs);
+  margin-top: var(--spacing-2);
+}
+#drawing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.drawing-rect {
+  position: absolute;
+  border: 2px dashed var(--primary-color);
+  background-color: rgba(37, 99, 235, 0.2);
+}
+/* Button styles */
+.marker-button-container {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+}
+
+.marker-button-container button {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-full);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.marker-button-container button:hover {
+  transform: scale(1.05);
+}
+
+.go-to-marker { background-color: var(--success-color); }
+.edit-marker { background-color: var(--warning-color); }
+.delete-marker { background-color: var(--danger-color); }
+.save-marker { background-color: var(--primary-color); }
+.cancel-marker { background-color: var(--secondary-color); }
+
+/* Text input during edit mode */
+.marker-text-input {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  margin: var(--spacing-3) 0;
+  transition: all 0.2s ease;
+}
+
+.marker-text-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .marker-input-container {
+    flex-direction: column;
+  }
+  
+.marker-list-item {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--spacing-4);
+  background-color: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+  
+  .marker-list-photo {
+    margin-bottom: var(--spacing-3);
+    margin-right: 0;
+  }
+  
+  .marker-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-1);
+  }
+  
+  .marker-button-container {
+    margin-top: var(--spacing-4);
+  }
+  
+  .marker-button-container button {
+    width: 40px;
+    height: 40px;
+  }
+}
+/* Edit mode container */
+.edit-mode-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-3);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Text input during edit mode */
+.marker-text-input {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  background-color: var(--gray-50);
+  transition: all 0.2s ease;
+  margin: 0;
+  box-sizing: border-box; /* Add this to include padding in width calculation */
+}
+
+.marker-text-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background-color: white;
+}
+
+/* Edit mode buttons container */
+.edit-buttons-container {
+  display: flex;
+  gap: var(--spacing-3);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Edit mode buttons */
+.edit-buttons-container button {
+  flex: 1;
+  height: 40px;
+  padding: 0 var(--spacing-4);
+  border-radius: var(--border-radius);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+/* Save button */
+.save-marker {
+  background-color: var(--primary-color);
+}
+
+.save-marker:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Cancel button */
+.cancel-marker {
+  background-color: var(--gray-500);
+}
+
+.cancel-marker:hover {
+  background-color: var(--gray-600);
+}
+
+/* Button icons */
+.edit-buttons-container button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Add text labels next to icons */
+.button-text {
+  display: inline-block;
+  margin-left: var(--spacing-2);
+}
+
+/* Update the marker list item Zedit mode */
+.marker-list-item.editing {
+  background-color: var(--gray-50);
+  border: 2px solid var(--primary-color);
+  padding: var(--spacing-4);
+}
+/* Responsive design for edit mode */
+@media (max-width: 768px) {
+  .edit-mode-container {
+    padding: 0;
+  }
+  
+  .marker-text-input {
+    width: 100%;
+  }
+  
+  .edit-buttons-container {
+    flex-direction: column;
+  }
+  
+  .edit-buttons-container button {
+    width: 100%;
+  }
+}
+.annotation-rect {
+  position: absolute;
+  border: 2px solid red;
+  pointer-events: none;
+}
+.annotation-indicator {
+  background-color: var(--info-color);
+  color: white;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  margin-left: var(--spacing-2);
+}
+
+.vjs-draw-button.active {
+  background-color: rgba(37, 99, 235, 0.5);
+}

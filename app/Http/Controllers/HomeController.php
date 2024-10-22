@@ -1225,7 +1225,7 @@ class HomeController extends Controller
         $this->mode = request()->mode;
         $review_file_id = request()->review_file_id;
         $this->review_file = TaskReviewFile::findOrFail($review_file_id);
-        $this->taskReviewComments = TaskReviewComment::where('review_file_id', request()->review_file_id)->get();
+        $this->taskReviewComments = TaskReviewComment::where('review_file_id', request()->review_file_id)->with('user')->get();
         
         $extension = pathinfo($this->review_file->file_url, PATHINFO_EXTENSION);
 

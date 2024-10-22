@@ -413,6 +413,9 @@ Route::group(['middleware' => ['auth', 'multi-company-select', 'email_verified']
     Route::post('tasks/assign-yourself', [TaskController::class, 'assignYourself'])->name('tasks.assign_yourself');
 
     Route::resource('task-review-comment', TaskReviewCommentController::class);
+    Route::post('tasks/get-comments', [TaskReviewCommentController::class, 'getAllComments'])->name('tasks.get_comments');
+    Route::post('tasks/store-image-comment', [TaskReviewCommentController::class, 'storeImageComment'])->name('tasks.store-image-comment');
+    Route::post('tasks/update-image-comment', [TaskReviewCommentController::class, 'updateImageComment'])->name('tasks.update-image-comment');
 
     Route::group(['prefix' => 'tasks'], function () {
 

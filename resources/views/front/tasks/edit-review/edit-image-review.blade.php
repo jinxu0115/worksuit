@@ -1,119 +1,31 @@
-<style>
-    .media-element{
-        max-height: 100vh;
-        width: auto;
-    }
-    .comment{
-        position : absolute;
-        background-color: rgba(255, 255, 255, 0.8);
-        border: none;
-        padding: 5px;
-        z-index: 10;
-    }
-    .comment textarea{
-        border-radius: 10px;
-        width: 300px;
-        height: 100px;
-        padding: 10px;
-        font-size: 20px;
-    }
-    .submit-comment{
-        right: 37px;
-        top: 6px;
-        border-radius: 100%;
-        cursor: pointer;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .cancel-comment{
-        right: 6px;
-        top: 6px;
-        border-radius: 100%;
-        cursor: pointer;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    textarea{
-        border-radius: 5px;
-        border: 1px solid #c9c9c9;
-    }
-    .update-comment{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-    }
-    .remove-comment{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        margin-top: 5px;
-    }
-    #comments_panel .row{
-        border-bottom: 1px solid gray;
-    }
-</style>
+<link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+<link rel = "preconnect" href = "https://fonts.googleapis.com" > 
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url('/css/video-player/styles.css') }}">
 <div class="modal-body text-center row px-10">
-    <input type="hidden" id="mode" value='{{$mode}}'/>
-    <input type="hidden" id="review_file" value="{{json_encode($review_file)}}"/>
-    <div class="position-relative media-div col-9">
-        <img src="{{ $review_file->file_url }}" class="img-fluid media-element" alt="Review Image">
-        <div id="comments_in_image">
-            @foreach($taskReviewComments as $comment)
-                @if(!$comment->top_percentage) @continue @endif
-                <div class="position-absolute" style="{{'top: ' . $comment->top_percentage .  '%; left:' . $comment->left_percentage . '%; position: absolute; background-color: rgba(255, 255, 255, 0.8); font-size: 20px; padding: 5px; z-index: 10;'}}">
-                    {{$comment->comment_text}}
-                </div>
-            @endforeach
-        </div>
-        @if($mode == 'edit')
-            <div class="row mt-3">
-                <div class="col-9">
-                    <textarea class="w-100" id="new_comment"></textarea>                
-                </div>
-                <div class="col-3">
-                    <x-forms.button-primary class="btn-xs" id="create_comment" icon="plus">
-                        Add Comment
-                    </x-forms.button-primary> 
-                </div>
-            </div>
-        @endif
+    <input type="hidden" id="userInfo" value="{{json_encode(user())}}"/>
+    <input type="hidden" id="reviewFileId" value="{{$review_file->id}}"/>
+    <input type="hidden" id="taskReviewComments" value="{{json_encode($taskReviewComments)}}"/>
+    <div class="video-container">
+        <img src="{{ $review_file->file_url }}" class="video-js vjs-default-skin" alt="Review Image">
     </div>
-    <div id="comments_panel" class="col-3">
-        <h3>Comments</h3>
-        @foreach($taskReviewComments as $comment)
-            <div class="row p-1">
-                <div class="{{$mode == 'edit' ? 'col-10' : 'col-12'}}">
-                    <textarea class="w-100">{{$comment->comment_text}}</textarea>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>{{$comment->user->name}}</div>
-                        <div>{{\Carbon\Carbon::parse($comment->created_at)->format(companyOrGlobalSetting()->date_format) . ' ' . \Carbon\Carbon::parse($comment->created_at)->format(company()->time_format)}}</div>
-                    </div>
-                </div>
-                @if($mode == 'edit')
-                    <div class="col-2">
-                        <x-forms.button-secondary class="btn-xs update-comment" data-comment-id="{{$comment->id}}" icon="edit">
-                        </x-forms.button-secondary>
-                        <x-forms.button-secondary class="btn-xs remove-comment" data-comment-id="{{$comment->id}}" icon="trash">
-                        </x-forms.button-secondary>
-                    </div>
-                @endif
-            </div>
-        @endforeach
+
+    <!-- Input field and button for adding markers -->
+    @if($mode == 'edit')
+    <div class="marker-input-container">
+        <input type="text" id="marker-text-input" placeholder="Enter marker text here..." />
+        <button id="add-marker-button">Add Marker</button>
+        <div id="drawing-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+
     </div>
+    @endif
+
+    <!-- Marker list container -->
+    <div id="marker-list" class="marker-list-container"></div>
 </div>
 
 <div class="modal-footer d-flex align-items-center justify-content-between">
-    @if($review_file->canApprove())
+    @if($review_file->canApprove()) 
         <div class="d-flex">
             <button class="btn btn-danger" id="reject_review">{{$review_file->rejected ? 'Unreject' : 'Reject'}}</button>
             <button class="btn btn-success ml-2" id="approve_review">
@@ -125,167 +37,280 @@
             </button>
         </div>
     @endif
-    <x-forms.button-cancel data-dismiss="modal">@lang('app.close')</x-forms.button-cancel>
+    <x-forms.button-cancel id="close-video-player-modal" data-dismiss="modal">@lang('app.close')</x-forms.button-cancel>
 </div>
 <script>
-    $('#reject_review').click(function() {
-        let review_file = JSON.parse($('#review_file').val());
-        const url = "{{ route('front.public.reject-review') }}";
-
-        $.ajax({
-            type: "POST",
-            url : url,
-            data: {
-                reviewFileId : review_file.id,
-                '_token': '{{csrf_token()}}'
-            },
-            success: function (response) {
-                window.location.reload();
-            }
-        })
+    $('#close-video-player-modal').on('click', function() {
+        window.location.reload()
     })
-    $('#approve_review').click(function() {
-        let review_file = JSON.parse($('#review_file').val());
-        const url = "{{ route('front.public.approve-review') }}";
-
-        $.ajax({
-            type: "POST",
-            url : url,
-            data: {
-                reviewFileId : review_file.id,
-                '_token': '{{csrf_token()}}'
-            },
-            success: function (response) {
-                window.location.reload();
-            }
-        })
-    })
-    if($('#mode').val() == 'edit'){
-        $('#create_comment').on('click', function() {
-            let review_file = JSON.parse($('#review_file').val());
-            const comment = $('#new_comment').val();
-            if(comment == '') return ;
-            $.ajax({
-                type: "POST",
-                url: "{{ route('task-review-comment.store') }}",
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                    'mediaId' : review_file.id,
-                    'commentText' : comment.trim(),
-                },
-                success: function (response){
-                    if(response.status == 'success'){
-                        $('#new_comment').val('')
-                        $('#comments_panel').empty();
-                        $('#comments_panel').append(response.list_view);
-                        $('#comments_in_image').empty();
-                        $('#comments_in_image').append(response.media_view);
-                    }
-                }
-            })
-        })
-        $('.media-element').on('click', function(e) {
-            let review_file = JSON.parse($('#review_file').val());
-
-            $('.comment').remove();
-
-            const offset = $(this).offset();
-            const x = e.pageX - offset.left;
-            const y = e.pageY - offset.top;
-            const relativeDivX = offset.left - $('.media-div').offset().left;
-            const relativeDivY = offset.top - $('.media-div').offset().top;
-
-            // Create a comment box
-            let commentHtml = `
-                <div class="comment" style="top: ${y + relativeDivY}px; left: ${x + relativeDivX}px;">
-                    <textarea class="comment-text" rows="2" placeholder="Enter your comment"></textarea>
-                    <div class="postion-relative flex">                
-                        <button class="submit-comment position-absolute btn btn-primary"><i class="fa fa-check"></i></button>
-                        <button class="cancel-comment position-absolute btn btn-secondary"><i class="fa fa-times"></i></button>
-                    </div>
-                </div>
-            `;
-
-            $('.media-div').append(commentHtml);
-            
-            $('.comment textarea').focus();
-
-            $('.cancel-comment').on('click', function() {
-                $(this).closest('.comment').remove();
-            })
-
-            $('.submit-comment').last().on('click', function() {
-                const comment = $('.comment').find('textarea').val();
-                if (comment.trim()) {
-                    const commentBox = $(this).closest('.comment');
-                    const commentPosition = commentBox.position();
-                    
-                    commentBox.remove();
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ route('task-review-comment.store') }}",
-                        data: {
-                            '_token': "{{ csrf_token() }}",
-                            'mediaId' : review_file.id,
-                            'commentText' : comment.trim(),
-                            'left_percentage' : (x + relativeDivX) * 100 / $('.media-div').width(),
-                            'top_percentage' : (y + relativeDivY) * 100 / $('.media-div').height(),
-                        },
-                        success: function (response){
-                            if(response.status == 'success'){
-                                $('#comments_panel').empty();
-                                $('#comments_panel').append(response.list_view);
-                                $('#comments_in_image').empty();
-                                $('#comments_in_image').append(response.media_view);
-                            }
-                        }
-                    })
-                } else {
-                    console.log('Please enter a comment.');
-                }
-            });
-        });
-        $('.update-comment').on('click', function() {
-            let commentId = $(this).attr('data-comment-id');
-            let commentText = $(this).closest('.row').find('textarea').val();
-            let url = `{{ route('task-review-comment.update', ':id') }}`
-            url = url.replace(':id', commentId);
-            $.ajax({
-                type: "PUT",
-                url: url,
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                    'commentText' : commentText,
-                },
-                success: function (response){
-                    if(response.status == 'success'){
-                        $('#comments_panel').empty();
-                        $('#comments_panel').append(response.list_view);
-                        $('#comments_in_image').empty();
-                        $('#comments_in_image').append(response.media_view);
-                    }
-                }
-            })
-        })
-        $('.remove-comment').on('click', function() {
-            let commentId = $(this).attr('data-comment-id');
-            let url = `{{ route('task-review-comment.destroy', ':id') }}`
-            url = url.replace(':id', commentId);
-            $.ajax({
-                type: "DELETE",
-                url: url,
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                },
-                success: function (response){
-                    if(response.status == 'success'){
-                        $('#comments_panel').empty();
-                        $('#comments_panel').append(response.list_view);
-                        $('#comments_in_image').empty();
-                        $('#comments_in_image').append(response.media_view);
-                    }
-                }
-            })
+    let taskReviewComments = JSON.parse($('#taskReviewComments').val());
+    if(taskReviewComments.length > 0){
+        taskReviewComments.forEach(function(comment) {
+            comment.isEditing == false;
         })
     }
+    $('#add-marker-button').on('click', () => {
+        const markerTextInput = document.getElementById('marker-text-input');
+      const markerText = markerTextInput.value.trim();
+
+      if (markerText === '') {
+        alert('Please enter text for the marker.');
+        return;
+      }
+
+    $.ajax({
+        type: 'POST',
+        url: "{{ route('tasks.store-image-comment') }}",
+        data: {
+            fileId: $('#reviewFileId').val(),
+            commentText: markerText,
+            '_token': "{{ csrf_token() }}"
+        },
+        success: function(response) {
+            taskReviewComments = response;
+    
+            if(taskReviewComments.length > 0){
+                taskReviewComments.forEach(function(comment) {
+                    comment.isEditing == false;
+                })
+            }
+            renderMarkerList()
+        }
+    })
+
+      // Clear the input field
+      markerTextInput.value = '';
+    });
+    // Update a marker's text
+    function updateMarker(index, updatedText) {
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('tasks.update-image-comment') }}",
+            data: {
+                commentText: updatedText,
+                commentId: index,
+                '_token': "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                taskReviewComments = response;
+        
+                if(taskReviewComments.length > 0){
+                    taskReviewComments.forEach(function(comment) {
+                        comment.isEditing == false;
+                    })
+                }
+                renderMarkerList()
+            }
+        })
+    }
+    function deleteMarker(index) {        
+        let url = `{{ route('task-review-comment.destroy', ':id') }}`
+        url = url.replace(':id', index);
+
+        $.ajax({
+            type: "DELETE",
+            url: url,
+            data: {
+                '_token': "{{ csrf_token() }}",
+            },
+            success: function(response) {
+                taskReviewComments = response;
+        
+                if(taskReviewComments.length > 0){
+                    taskReviewComments.forEach(function(comment) {
+                        comment.isEditing == false;
+                    })
+                }
+                renderMarkerList()
+            }
+        })
+    }
+    function renderMarkerList() {
+      const markerListContainer = document.getElementById("marker-list");
+      markerListContainer.innerHTML = ""; // Clear existing list
+
+      // Create a copy of markers array and reverse it
+      const sortedMarkers = taskReviewComments;
+
+      sortedMarkers.forEach((marker, index) => {
+          // Calculate the original index in the this.markers array
+          const originalIndex = marker.id;
+
+          const listItem = document.createElement("div");
+          listItem.className = "marker-list-item";
+
+          // Create the photo element
+          let photoImg;
+          if (marker.user.image_url) {
+              photoImg = document.createElement("img");
+              photoImg.src = marker.user.image_url;
+              photoImg.alt = "Photo";
+              photoImg.className = "marker-list-photo";
+          }
+
+          // Create a container for the content
+          const contentContainer = document.createElement("div");
+          contentContainer.className = "marker-content-container";
+
+          // Header section with name and time
+          const header = document.createElement("div");
+          header.className = "marker-header";
+
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "marker-name";
+          nameSpan.innerText = marker.user.name || "";
+          header.appendChild(nameSpan);
+
+          // Timestamp span
+          const timestampSpan = document.createElement("span");
+          timestampSpan.className = "marker-timestamp";
+          timestampSpan.innerText = `Created: ${new Date(
+              marker.created_at
+          ).toLocaleString()}`;
+
+          // Check if the marker is in editing mode
+          if (marker.isEditing) {
+              // --- Edit Mode ---
+              const editContainer = document.createElement("div");
+              editContainer.className = "edit-mode-container";
+
+              const textInput = document.createElement("input");
+              textInput.className = "marker-text-input";
+              textInput.type = "text";
+              textInput.value = marker.comment_text || "";
+              textInput.placeholder = "Enter marker text...";
+
+              const buttonsContainer = document.createElement("div");
+              buttonsContainer.className = "edit-buttons-container";
+
+              const saveButton = document.createElement("button");
+              saveButton.className = "save-marker";
+              saveButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"/>
+                    </svg>
+                    <span class="button-text">Save Changes</span>
+                    `;
+
+              const cancelButton = document.createElement("button");
+              cancelButton.className = "cancel-marker";
+              cancelButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"/>
+                    </svg>
+                    <span class="button-text">Cancel</span>
+                    `;
+
+              // Use originalIndex for save/cancel operations
+              saveButton.addEventListener("click", () => {
+                  const updatedText = textInput.value.trim();
+                  updateMarker(originalIndex, updatedText);
+              });
+
+              cancelButton.addEventListener("click", () => {
+                  marker.isEditing = false;
+                  renderMarkerList();
+              });
+
+              textInput.addEventListener("keypress", (e) => {
+                  if (e.key === "Enter") {
+                      const updatedText = textInput.value.trim();
+                      updateMarker(originalIndex, updatedText);
+                  }
+              });
+
+              buttonsContainer.appendChild(saveButton);
+              buttonsContainer.appendChild(cancelButton);
+
+              editContainer.appendChild(textInput);
+              editContainer.appendChild(buttonsContainer);
+
+              contentContainer.appendChild(header);
+              contentContainer.appendChild(editContainer);
+              contentContainer.appendChild(timestampSpan);
+
+              listItem.classList.add("editing");
+          } else {
+              // --- Display Mode ---
+              if (marker.rectangle) {
+                  const annotationIndicator = document.createElement("span");
+                  annotationIndicator.className = "annotation-indicator";
+                  annotationIndicator.innerText = "🖍️ Annotation";
+                  header.appendChild(annotationIndicator);
+              }
+
+              const textSpan = document.createElement("p");
+              textSpan.className = "marker-text";
+              textSpan.innerText = marker.comment_text;
+
+              const buttonContainer = document.createElement("div");
+              buttonContainer.className = "marker-button-container";
+
+
+              const editButton = document.createElement("button");
+              editButton.className = "edit-marker";
+              editButton.setAttribute("title", "Edit");
+              editButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                    <path d="M3 17.25V21h3.75l11-11.062-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1.003 1.003 0 00-1.42 0L15.13 4.96l3.75 3.75 1.83-1.67z"></path>
+                </svg>
+                `;
+
+              editButton.addEventListener("click", () => {
+                  marker.isEditing = true;
+                  renderMarkerList();
+              });
+
+              const deleteButton = document.createElement("button");
+              deleteButton.className = "delete-marker";
+              deleteButton.setAttribute("title", "Delete");
+              deleteButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                    <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"></path>
+                </svg>
+                `;
+
+              // Use originalIndex for delete operation
+              deleteButton.addEventListener("click", () => {
+                  Swal.fire({
+                      title: "Are you sure?",
+                      text: "You will not be able to recover the deleted record!",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      focusCancel: true,
+                      confirmButtonText: "Yes, Delete It!",
+                      cancelButtonText: "Cancel",
+                      customClass: {
+                          confirmButton: 'btn btn-primary mr-3',
+                          cancelButton: 'btn btn-secondary'
+                      },
+                      showClass: {
+                          popup: 'swal2-noanimation',
+                          backdrop: 'swal2-noanimation'
+                      },
+                      buttonsStyling: false
+                  }).then((result) => {
+                      if (result.isConfirmed) {
+                        deleteMarker(originalIndex);
+                      }
+                  });
+              });
+
+              buttonContainer.appendChild(editButton);
+              buttonContainer.appendChild(deleteButton);
+
+              contentContainer.appendChild(header);
+              contentContainer.appendChild(textSpan);
+              contentContainer.appendChild(buttonContainer);
+              contentContainer.appendChild(timestampSpan);
+          }
+
+          if (photoImg) {
+              listItem.appendChild(photoImg);
+          }
+          listItem.appendChild(contentContainer);
+          markerListContainer.appendChild(listItem);
+      });
+    }
+  renderMarkerList()
 </script>
