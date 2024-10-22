@@ -2,6 +2,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url('/css/video-player/styles.css') }}">
+<style>
+    .modal-dialog{
+        max-width: 95% !important;
+    }
+</style>
 
 <div class="modal-body text-center row px-10">
     <input type="hidden" id="userInfo" value="{{json_encode(user())}}"/>

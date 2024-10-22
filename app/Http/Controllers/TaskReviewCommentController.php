@@ -40,6 +40,9 @@ class TaskReviewCommentController extends Controller
             $taskReviewComment->comment_text = $comment['text'];
             $taskReviewComment->time_frame = $comment['time'];
             $taskReviewComment->user_id = $comment['userId'];
+            if (isset($comment['rectangle'])) {
+                $taskReviewComment->rect_data = json_encode($comment['rectangle']);
+            }
             $taskReviewComment->save();
         }
         return 'success';
@@ -110,8 +113,11 @@ class TaskReviewCommentController extends Controller
     }
 
     public function getAllComments(Request $request){
-        $comments = TaskReviewComment::where('review_file_id', $request->fileId)->with('user')->get();
-        return $comments;
+        $comments = TaskReviewComment::where('review_file_id', $request->fileId)
+                    ->with('user')
+                    ->get();
+        
+        return response()->json($comments);
     }
 
     public function storeImageComment(Request $request){

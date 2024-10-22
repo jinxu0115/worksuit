@@ -180,17 +180,18 @@ class VideoPlayer {
 
       if (comment) {
           const currentTime = this.player.currentTime();
-          const userInfo = getUserInfo();
+          const userInfo = JSON.parse($('#userInfo').val());
 
           // Create the marker with rectangle data
           const marker = {
               time: currentTime,
-              photoUrl: userInfo.photoUrl || null,
+              photoUrl: userInfo.image_url || null,
               text: comment,
               name: userInfo.name,
               timestamp: new Date().toISOString(),
               isEditing: false,
-              rectangle: rectData,
+              rectangle: JSON.stringify(rectData),
+              userId : userInfo.id
           };
 
           // Add the marker
@@ -244,6 +245,7 @@ class VideoPlayer {
             obj.timestamp = comment.created_at
             obj.isEditing = false
             obj.userId = comment.user.id
+            obj.rectangle = comment.rect_data ? JSON.parse(comment.rect_data) : null;
             markers.push(obj);
           })
           this.markers = markers;
@@ -397,6 +399,7 @@ class VideoPlayer {
   // Render the list of markers
   // Render the list of markers
   renderMarkerList() {
+    console.log(this.markers)
       const markerListContainer = document.getElementById("marker-list");
       markerListContainer.innerHTML = ""; // Clear existing list
 
@@ -507,6 +510,7 @@ class VideoPlayer {
 
               listItem.classList.add("editing");
           } else {
+            console.log(marker)
               // --- Display Mode ---
               if (marker.rectangle) {
                   const annotationIndicator = document.createElement("span");
@@ -550,6 +554,8 @@ class VideoPlayer {
                   this.player.currentTime(marker.time);
                   this.player.pause();
               });
+              buttonContainer.appendChild(goToButton);
+              buttonContainer.appendChild(goToPauseButton);
               if(JSON.parse($('#userInfo').val()).id == marker.userId){
                 const editButton = document.createElement("button");
                 editButton.className = "edit-marker";
@@ -604,8 +610,6 @@ class VideoPlayer {
                     buttonContainer.appendChild(deleteButton);
                 }
 
-              buttonContainer.appendChild(goToButton);
-              buttonContainer.appendChild(goToPauseButton);
 
               contentContainer.appendChild(header);
               contentContainer.appendChild(textSpan);

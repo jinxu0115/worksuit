@@ -8,11 +8,11 @@
         <div class="position-relative">
             <x-file-card :fileName="$file->filename" :dateAdded="$file->created_at->diffForHumans()">
                 @if ($file->icon == 'images')
-                    <a class="view-review" data-review-file-id="{{$file->id}}"  href="javascript:;">
+                    <a class="edit-review" data-review-file-id="{{$file->id}}"  href="javascript:;">
                         <img src="{{ $file->file_url }}">
                     </a>
                 @else
-                    <a class="view-review" data-review-file-id="{{$file->id}}" >
+                    <a class="edit-review" data-review-file-id="{{$file->id}}" >
                         <i class="fa {{ $file->icon }} text-lightest"></i>
                     </a>
                 @endif

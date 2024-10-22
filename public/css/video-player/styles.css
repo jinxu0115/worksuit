@@ -299,8 +299,8 @@ body {
 }
 
 .marker-button-container button {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--border-radius-full);
   border: none;
   cursor: pointer;
