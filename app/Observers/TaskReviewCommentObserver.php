@@ -58,7 +58,14 @@ class TaskReviewCommentObserver
             ],
             'action' => $action,
             'review_file_name' => $taskReviewFile->filename,
-            'review_comment' => $taskReviewComment->comment_text
+            'review_comment' => $taskReviewComment->comment_text,
+            'review_file_link' => $taskReviewFile->file_url,
+            'time' => $taskReviewComment->time_frame,
+            'user' => [
+                'name' => $taskReviewComment->user->name,
+                'phone_number' => $taskReviewComment->user->mobile,
+                'email' => $taskReviewComment->user->email,
+            ]
         ];
         return $webhookData;
     }
@@ -71,7 +78,7 @@ class TaskReviewCommentObserver
         $taskReviewFile = TaskReviewFile::where('id', $taskReviewComment->review_file_id)->first();
         $task = Task::where('id', $taskReviewFile->task_id)->first();
         event(new TaskReviewCommentEvent($task, $task->users, 'CommentCreated'));
-        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewComment, $taskReviewFile, $task, 'task review comment created')));
+        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewComment, $taskReviewFile, $task, 'NewComment')));
     }
 
     /**
@@ -82,7 +89,7 @@ class TaskReviewCommentObserver
         $webhookUrl = config('app.webhook_url');
         $taskReviewFile = TaskReviewFile::where('id', $taskReviewComment->review_file_id)->first();
         $task = Task::where('id', $taskReviewFile->task_id)->first();
-        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewComment, $taskReviewFile, $task, 'task review comment updated')));
+        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewComment, $taskReviewFile, $task, 'UpdatedComment')));
     }
 
     /**
@@ -93,7 +100,7 @@ class TaskReviewCommentObserver
         $webhookUrl = config('app.webhook_url');
         $taskReviewFile = TaskReviewFile::where('id', $taskReviewComment->review_file_id)->first();
         $task = Task::where('id', $taskReviewFile->task_id)->first();
-        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewComment, $taskReviewFile, $task, 'task review comment deleted')));
+        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewComment, $taskReviewFile, $task, 'RemovedComment')));
     }
 
     /**

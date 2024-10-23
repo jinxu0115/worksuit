@@ -7,7 +7,6 @@ class VideoPlayer {
           responsive: true,
           fluid: true, // Makes the player responsive
       });
-      this.markerStorage = new MarkerStorage();
       this.markers = [];
       this.startTime = startTime;
 
@@ -245,6 +244,7 @@ class VideoPlayer {
             obj.isEditing = false
             obj.userId = comment.user.id
             obj.rectangle = comment.rect_data ? JSON.parse(comment.rect_data) : null;
+            obj.commentId = comment.id
             markers.push(obj);
           })
           this.markers = markers;
@@ -272,64 +272,129 @@ class VideoPlayer {
 
   // Add a marker with optional properties
   addMarker(marker) {
-      this.markers.push(marker);
-      this.markerStorage.saveMarkers(this.markers);
-
-      if (this.player.duration()) {
-          this.createMarkerElement(marker, this.markers.length - 1);
+    $.ajax({
+      type: 'POST',
+      url: storeCommentsUrl,
+      data: {
+        fileId: $('#reviewFileId').val(),
+        comment: marker,
+        '_token': csrfToken
+      },
+      success: (response) => {
+        let markers = [];
+        response.map((comment) => {
+          let obj = {};
+          obj.time = comment.time_frame
+          obj.photoUrl = comment.user.image_url
+          obj.text = comment.comment_text
+          obj.name = comment.user.name
+          obj.timestamp = comment.created_at
+          obj.isEditing = false
+          obj.userId = comment.user.id
+          obj.commentId = comment.id
+          obj.rectangle = comment.rect_data ? JSON.parse(comment.rect_data) : null;
+          markers.push(obj);
+        })
+        this.markers = markers;
+        if (this.player.duration()) {
+            this.createMarkerElement(marker, this.markers.length - 1);
+        }
+  
+        // Update the marker list display
+        this.renderMarkerList();
       }
+    })
 
-      // Update the marker list display
-      this.renderMarkerList();
   }
 
   // Update a marker's text
   updateMarker(index, updatedText) {
       const marker = this.markers[index];
-      marker.text = updatedText;
-      marker.isEditing = false;
-      this.markers[index] = marker;
-      this.markerStorage.saveMarkers(this.markers);
-
-      // Update the marker tooltip
-      const markerElement = document.querySelector(
-          `.custom-marker[data-index='${index}']`
-      );
-      if (markerElement) {
-          const tooltip = markerElement.querySelector(".marker-tooltip");
-          if (tooltip) {
-              tooltip.innerHTML = `
-            ${
-                marker.photoUrl
-                    ? `<img src="${marker.photoUrl}" alt="Photo" style="width:30px;height:30px;border-radius:50%;margin-bottom:5px;">`
-                    : ""
-            }
-            <strong>${marker.name || ""}</strong><br>
-            ${marker.text || ""}<br>
-            <small>${
-                marker.timestamp
-                    ? new Date(marker.timestamp).toLocaleString()
-                    : ""
-            }</small>
-          `;
+      $.ajax({
+        type: 'PUT',
+        url: updateCommentsUrl.replace(':id', marker.commentId),
+        data: {
+          updatedText: updatedText,
+          '_token': csrfToken
+        },
+        success: (response) => {
+          let markers = [];
+          response.map((comment) => {
+            let obj = {};
+            obj.time = comment.time_frame
+            obj.photoUrl = comment.user.image_url
+            obj.text = comment.comment_text
+            obj.name = comment.user.name
+            obj.timestamp = comment.created_at
+            obj.isEditing = false
+            obj.userId = comment.user.id
+            obj.commentId = comment.id
+            obj.rectangle = comment.rect_data ? JSON.parse(comment.rect_data) : null;
+            markers.push(obj);
+          })
+          this.markers = markers;
+          const markerElement = document.querySelector(
+            `.custom-marker[data-index='${index}']`
+          );
+          if (markerElement) {
+              const tooltip = markerElement.querySelector(".marker-tooltip");
+              if (tooltip) {
+                  tooltip.innerHTML = `
+                ${
+                    marker.photoUrl
+                        ? `<img src="${marker.photoUrl}" alt="Photo" style="width:30px;height:30px;border-radius:50%;margin-bottom:5px;">`
+                        : ""
+                }
+                <strong>${marker.name || ""}</strong><br>
+                ${marker.text || ""}<br>
+                <small>${
+                    marker.timestamp
+                        ? new Date(marker.timestamp).toLocaleString()
+                        : ""
+                }</small>
+              `;
+              }
           }
-      }
+    
+          // Update the marker list display
+          this.renderMarkerList();
+        }
+      })
 
-      // Update the marker list display
-      this.renderMarkerList();
   }
 
   // Delete a marker
   deleteMarker(index) {
-      // Remove marker from markers array and storage
-      this.markers.splice(index, 1);
-      this.markerStorage.saveMarkers(this.markers);
-
-      // Re-render markers to update indices and elements
-      this.refreshMarkers();
-
-      // Update the marker list display
-      this.renderMarkerList();
+      const marker = this.markers[index];
+      $.ajax({
+        type: 'DELETE',
+        url: removeCommentsUrl.replace(':id', marker.commentId),
+        data: {
+          '_token': csrfToken
+        },
+        success: (response) => {
+          let markers = [];
+          response.map((comment) => {
+            let obj = {};
+            obj.time = comment.time_frame
+            obj.photoUrl = comment.user.image_url
+            obj.text = comment.comment_text
+            obj.name = comment.user.name
+            obj.timestamp = comment.created_at
+            obj.isEditing = false
+            obj.userId = comment.user.id
+            obj.commentId = comment.id
+            obj.rectangle = comment.rect_data ? JSON.parse(comment.rect_data) : null;
+            markers.push(obj);
+          })
+          this.markers = markers;
+          // Re-render markers to update indices and elements
+          this.refreshMarkers();
+    
+          // Update the marker list display
+          this.renderMarkerList();
+        }
+      })
   }
 
   // Refresh markers after deletion

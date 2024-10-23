@@ -72,13 +72,14 @@
   <!-- Video.js JavaScript -->
   <script src="/js/video-player/video.js"></script> 
 
-  <script src="/js/video-player/markerStorage.js"></script>
   <script src="/js/video-player/videoPlayer.js"></script>
   <script src="/js/video-player/main.js"></script>
   <script>
     var csrfToken = "{{ csrf_token() }}";
     var getCommentsUrl = "{{ route('tasks.get_comments') }}";
     var storeCommentsUrl = "{{ route('task-review-comment.store') }}";
+    var updateCommentsUrl = "{{ route('task-review-comment.update', ':id' ) }}";
+    var removeCommentsUrl = "{{ route('task-review-comment.destroy', ':id' ) }}";
     $('#close-video-player-modal').on('click', function() {
         window.location.reload()
     })

@@ -30,37 +30,20 @@ class TaskReviewCommentController extends Controller
      */
     public function store(Request $request)
     {
-        TaskReviewComment::where('review_file_id', $request['fileId'])->delete();
+        $comment = $request->comment;
 
-        $comments = $request['markers'];
-        if(!$request['markers']) return 'success';
-        foreach ($comments as $comment){
-            $taskReviewComment = new TaskReviewComment();
-            $taskReviewComment->review_file_id = $request['fileId'];
-            $taskReviewComment->comment_text = $comment['text'];
-            if (isset($comment['time'])) {
-                $taskReviewComment->time_frame = $comment['time'];
-            }
-            $taskReviewComment->user_id = $comment['userId'];
-            if (isset($comment['rectangle'])) {
-                $taskReviewComment->rect_data = json_encode($comment['rectangle']);
-            }
-            $taskReviewComment->save();
+        $taskReviewComment = new TaskReviewComment();
+        $taskReviewComment->review_file_id = $request['fileId'];
+        $taskReviewComment->comment_text = $comment['text'];
+        if (isset($comment['time'])) {
+            $taskReviewComment->time_frame = $comment['time'];
         }
-        return 'success';
-
-        // $this->taskReviewComments = TaskReviewComment::where('review_file_id', $request['mediaId'])->get();
-        // $this->review_file = TaskReviewFile::where('id', $request['mediaId'])->first();
-
-        // $media_view = view('front.tasks.edit-review.show-media-comments', $this->data)->render();
-        // if($this->review_file->duration){
-        //     $list_view = view('front.tasks.edit-review.show-video-comments', $this->data)->render();
-        //     $comment_marker_view = view('front.tasks.edit-review.comments-marker-show', $this->data)->render();
-        //     return Reply::dataOnly(['status' => 'success', 'list_view' => $list_view, 'media_view' => $media_view, 'taskReviewComments' => $this->taskReviewComments, 'comment_marker_view' => $comment_marker_view]);
-        // } else {
-        //     $list_view = view('front.tasks.edit-review.show-image-comments', $this->data)->render();
-        //     return Reply::dataOnly(['status' => 'success', 'list_view' => $list_view, 'media_view' => $media_view, 'taskReviewComments' => $this->taskReviewComments]);
-        // }
+        $taskReviewComment->user_id = user()->id;
+        if (isset($comment['rectangle'])) {
+            $taskReviewComment->rect_data = json_encode($comment['rectangle']);
+        }
+        $taskReviewComment->save();
+        return TaskReviewComment::where('review_file_id', $request->fileId)->with('user')->get();
         
     }
 
@@ -85,22 +68,9 @@ class TaskReviewCommentController extends Controller
      */
     public function update(Request $request, TaskReviewComment $taskReviewComment)
     {
-        $taskReviewComment->comment_text = $request->commentText;
-        $taskReviewComment->updated_by = user()->id;
-        $taskReviewComment->save();
-
-        $this->taskReviewComments = TaskReviewComment::where('review_file_id', $taskReviewComment->review_file_id)->get();
-        $this->review_file = TaskReviewFile::where('id', $taskReviewComment->review_file_id)->first();
-
-        $media_view = view('front.tasks.edit-review.show-media-comments', $this->data)->render();
-        
-        $list_view = '';
-        if($this->review_file->duration){
-            $list_view = view('front.tasks.edit-review.show-video-comments', $this->data)->render();
-        } else {
-            $list_view = view('front.tasks.edit-review.show-image-comments', $this->data)->render();
-        }
-        return Reply::dataOnly(['status' => 'success', 'list_view' => $list_view, 'media_view' => $media_view, 'taskReviewComments' => $this->taskReviewComments]);
+        $taskReviewComment->comment_text = $request->updatedText;
+        $taskReviewComment->update();
+        return TaskReviewComment::where('review_file_id', $taskReviewComment->review_file_id)->with('user')->get();
     }
 
     /**

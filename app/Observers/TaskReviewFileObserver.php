@@ -57,8 +57,8 @@ class TaskReviewFileObserver
             ],
             'action' => $action,
             'review_file_name' => $taskReviewFile->filename,
-            'type' => pathinfo($taskReviewFile->filename, PATHINFO_EXTENSION),
-            'approved' => $taskReviewFile->approved_by_creator && $taskReviewFile->approved_by_manager ? true : false
+            'link' => $taskReviewFile->file_url,
+            // 'approved' => $taskReviewFile->approved_by_creator && $taskReviewFile->approved_by_manager ? true : false
         ];
         return $webhookData;
     }
@@ -69,7 +69,7 @@ class TaskReviewFileObserver
     {        
         $webhookUrl = config('app.webhook_url');
         $task = Task::where('id', $taskReviewFile->task_id)->first();
-        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewFile, $task, 'task review file created')));
+        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewFile, $task, 'NewReviewItem')));
     }
 
     /**
@@ -87,7 +87,7 @@ class TaskReviewFileObserver
     {        
         $webhookUrl = config('app.webhook_url');
         $task = Task::where('id', $taskReviewFile->task_id)->first();
-        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewFile, $task, 'task review file deleted')));
+        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewFile, $task, 'NewReviewItem')));
     }
 
     /**
