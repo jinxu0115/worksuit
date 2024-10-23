@@ -56,6 +56,7 @@
         </div>
     </div>
 </div>
+
 <script>
     $('#close-video-player-modal').on('click', function() {
         window.location.reload()
