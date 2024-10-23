@@ -1245,14 +1245,20 @@ class HomeController extends Controller
         $userId = user()->id;
         if($userId == $task->created_by){
             $review_file->approved_by_creator = !$review_file->approved_by_creator;
+            if($review_file->approved_by_creator) event(new TaskReviewFileEvent($task, $task->users, 'ApprovedReviewByCreator'));
+            else event(new TaskReviewFileEvent($task, $task->users, 'UnapproveReviewByCreator'));
         }
         $project = Project::where('id', $task->project_id)->first();
         if(!empty($project)){
-            if($project->approver == $userId) $review_file->approved_by_manager = !$review_file->approved_by_manager;
+            if($project->approver == $userId) {
+                $review_file->approved_by_manager = !$review_file->approved_by_manager;
+                
+                if($review_file->approved_by_manager) event(new TaskReviewFileEvent($task, $task->users, 'ApprovedReviewByManager'));
+                else event(new TaskReviewFileEvent($task, $task->users, 'UnapproveReviewByManager'));
+            }
         }
         $review_file->save();
-        
-        event(new TaskReviewFileEvent($task, $task->users, 'ApproveReview'));
+        if($review_file->approved_by_creator && $review_file->approved_by_manager) event(new TaskReviewFileEvent($task, $task->users, 'ApprovedReview'));
         return 'success';
     }
 
@@ -1264,7 +1270,11 @@ class HomeController extends Controller
         $userId = user()->id;
         $review_file->rejected = !$review_file->rejected;
         $review_file->save();
-        // event(new TaskReviewFileEvent($task, $task->users, 'ApproveReview'));
+        if($review_file->rejected){
+            event(new TaskReviewFileEvent($task, $task->users, 'Rejected'));
+        }else {            
+            event(new TaskReviewFileEvent($task, $task->users, 'Unrejected'));
+        }
         return 'success';
     }
 

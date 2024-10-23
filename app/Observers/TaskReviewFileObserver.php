@@ -58,7 +58,9 @@ class TaskReviewFileObserver
             'action' => $action,
             'review_file_name' => $taskReviewFile->filename,
             'link' => $taskReviewFile->file_url,
-            // 'approved' => $taskReviewFile->approved_by_creator && $taskReviewFile->approved_by_manager ? true : false
+            'approved_by_creator' => $taskReviewFile->approved_by_creator ? true : false,
+            'approved_by_manager' => $taskReviewFile->approved_by_manager ? true : false,
+            'rejected' => $taskReviewFile->rejected ? true : false
         ];
         return $webhookData;
     }
@@ -77,7 +79,9 @@ class TaskReviewFileObserver
      */
     public function updated(TaskReviewFile $taskReviewFile): void
     {
-        //
+        $webhookUrl = config('app.webhook_url');
+        $task = Task::where('id', $taskReviewFile->task_id)->first();
+        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewFile, $task, 'UpdatedItem')));
     }
 
     /**
@@ -87,7 +91,7 @@ class TaskReviewFileObserver
     {        
         $webhookUrl = config('app.webhook_url');
         $task = Task::where('id', $taskReviewFile->task_id)->first();
-        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewFile, $task, 'NewReviewItem')));
+        Http::post($webhookUrl, array_merge($this->webhookData($taskReviewFile, $task, 'DeletedItem')));
     }
 
     /**

@@ -123,6 +123,14 @@ return array(
         'action' => 'View Task',
         'updatedBy' => 'Updated By',
     ),
+    'taskReviewApprove' => array(
+        'approvedByCreator' => 'Your Task Review Has Been Approved By Creator!',
+        'unapprovedByCreator' => 'Your Task Review Has Been Unapproved By Creator!',
+        'approvedByManager' => 'Your Task Review Has Been Approved By Manager!',
+        'unapprovedByManager' => 'Your Task Review Has Been Unapproved By Manager!',
+        'rejected' => 'Your Task Review Has Been Rejected!',
+        'unrejected' => 'Your Task Review Has Been Unrejected!',
+    ),
     'leave' => array(
         'approve' => 'Leave application approved.',
         'reject' => 'Leave application rejected.',
